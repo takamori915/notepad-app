@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メモ帳</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <button id="newNoteBtn" class="new-note-btn">+ 新規メモ</button>
+            <ul id="noteList" class="note-list"></ul>
+        </aside>
+        <main class="editor">
+            <input id="titleInput" class="title-input" type="text" placeholder="タイトル">
+            <textarea id="bodyInput" class="body-input" placeholder="メモを入力..."></textarea>
+            <div class="editor-footer">
+                <span id="updatedAt" class="updated-at"></span>
+                <button id="deleteBtn" class="delete-btn">削除</button>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
