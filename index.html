@@ -13,14 +13,24 @@
             <ul id="noteList" class="note-list"></ul>
         </aside>
         <main class="editor">
-            <input id="titleInput" class="title-input" type="text" placeholder="タイトル">
-            <textarea id="bodyInput" class="body-input" placeholder="メモを入力..."></textarea>
+            <div class="editor-header">
+                <input id="titleInput" class="title-input" type="text" placeholder="タイトル">
+                <select id="formatSelect" class="format-select">
+                    <option value="text">テキスト</option>
+                    <option value="markdown">Markdown</option>
+                </select>
+            </div>
+            <div id="editorBody" class="editor-body">
+                <textarea id="bodyInput" class="body-input" placeholder="メモを入力..."></textarea>
+                <div id="previewPane" class="preview-pane" hidden></div>
+            </div>
             <div class="editor-footer">
                 <span id="updatedAt" class="updated-at"></span>
                 <button id="deleteBtn" class="delete-btn">削除</button>
             </div>
         </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
