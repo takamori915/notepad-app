@@ -8,6 +8,8 @@ class Notepad {
         this.noteList = document.getElementById('noteList');
         this.titleInput = document.getElementById('titleInput');
         this.bodyInput = document.getElementById('bodyInput');
+        this.previewPane = document.getElementById('previewPane');
+        this.formatSelect = document.getElementById('formatSelect');
         this.updatedAt = document.getElementById('updatedAt');
         this.newNoteBtn = document.getElementById('newNoteBtn');
         this.deleteBtn = document.getElementById('deleteBtn');
@@ -15,7 +17,14 @@ class Notepad {
         this.newNoteBtn.addEventListener('click', () => this.createNote());
         this.deleteBtn.addEventListener('click', () => this.deleteActiveNote());
         this.titleInput.addEventListener('input', () => this.saveActiveNote());
-        this.bodyInput.addEventListener('input', () => this.saveActiveNote());
+        this.bodyInput.addEventListener('input', () => {
+            this.saveActiveNote();
+            this.updatePreview();
+        });
+        this.formatSelect.addEventListener('change', () => {
+            this.saveActiveNote();
+            this.updateFormatView();
+        });
 
         this.render();
         if (this.notes.length > 0) {
@@ -43,6 +52,7 @@ class Notepad {
             id: Date.now().toString(),
             title: '',
             body: '',
+            format: 'text',
             updatedAt: Date.now(),
         };
         this.notes.unshift(note);
@@ -58,7 +68,9 @@ class Notepad {
         if (!note) return;
         this.titleInput.value = note.title;
         this.bodyInput.value = note.body;
+        this.formatSelect.value = note.format || 'text';
         this.updatedAt.textContent = this.formatDate(note.updatedAt);
+        this.updateFormatView();
         this.render();
     }
 
@@ -67,10 +79,26 @@ class Notepad {
         if (!note) return;
         note.title = this.titleInput.value;
         note.body = this.bodyInput.value;
+        note.format = this.formatSelect.value;
         note.updatedAt = Date.now();
         this.updatedAt.textContent = this.formatDate(note.updatedAt);
         this.persist();
         this.renderList();
+    }
+
+    updateFormatView() {
+        const isMarkdown = this.formatSelect.value === 'markdown';
+        this.previewPane.hidden = !isMarkdown;
+        if (isMarkdown) {
+            this.updatePreview();
+        }
+    }
+
+    updatePreview() {
+        if (this.formatSelect.value !== 'markdown') return;
+        this.previewPane.innerHTML = window.marked
+            ? marked.parse(this.bodyInput.value)
+            : this.escapeHtml(this.bodyInput.value);
     }
 
     deleteActiveNote() {
@@ -83,7 +111,9 @@ class Notepad {
             this.activeId = null;
             this.titleInput.value = '';
             this.bodyInput.value = '';
+            this.formatSelect.value = 'text';
             this.updatedAt.textContent = '';
+            this.previewPane.hidden = true;
             this.render();
         }
     }
