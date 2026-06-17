@@ -83,15 +83,38 @@ body {
     padding: 2rem;
 }
 
+.editor-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+    padding-bottom: 0.7rem;
+}
+
 .title-input {
+    flex: 1;
     font-size: 1.6rem;
     font-weight: bold;
     border: none;
-    border-bottom: 1px solid #ddd;
     background: transparent;
-    margin-bottom: 1rem;
-    padding-bottom: 0.7rem;
     outline: none;
+}
+
+.format-select {
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.editor-body {
+    flex: 1;
+    display: flex;
+    gap: 1rem;
+    min-height: 0;
 }
 
 .body-input {
@@ -102,6 +125,37 @@ body {
     font-size: 1rem;
     line-height: 1.6;
     outline: none;
+}
+
+.preview-pane {
+    flex: 1;
+    overflow-y: auto;
+    padding-left: 1rem;
+    border-left: 1px solid #ddd;
+    line-height: 1.6;
+}
+
+.preview-pane h1,
+.preview-pane h2,
+.preview-pane h3 {
+    margin: 0.8rem 0 0.4rem;
+}
+
+.preview-pane p {
+    margin: 0.4rem 0;
+}
+
+.preview-pane code {
+    background: #eee;
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+}
+
+.preview-pane pre {
+    background: #eee;
+    padding: 0.6rem;
+    border-radius: 6px;
+    overflow-x: auto;
 }
 
 .editor-footer {
