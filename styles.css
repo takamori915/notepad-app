@@ -155,6 +155,59 @@ body {
 
 .cal-clear:hover { background: #3a3b42; color: white; }
 
+.tag-filter-section {
+    margin: 0 0.7rem 0.8rem;
+}
+
+.tag-filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+}
+
+.tag-filter-title {
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tag-clear-btn {
+    background: none;
+    border: none;
+    color: #4a6cf7;
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.tag-clear-btn:hover { text-decoration: underline; }
+
+.tag-filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.tag-filter-chip {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: #2a2b31;
+    color: #ccc;
+    border: 1px solid #3a3b42;
+    cursor: pointer;
+}
+
+.tag-filter-chip:hover { background: #3a3b50; color: white; }
+
+.tag-filter-chip.active {
+    background: #4a6cf7;
+    color: white;
+    border-color: #4a6cf7;
+}
+
 .note-list {
     list-style: none;
     overflow-y: auto;
@@ -273,6 +326,57 @@ body {
     border-radius: 6px;
     overflow-x: auto;
 }
+
+.tag-editor {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid #eee;
+    margin-top: 0.5rem;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.tag-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: #e8eeff;
+    color: #4a6cf7;
+    font-size: 0.8rem;
+    border: 1px solid #c5d0ff;
+}
+
+.tag-chip-remove {
+    background: none;
+    border: none;
+    color: #4a6cf7;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 0;
+}
+
+.tag-chip-remove:hover { color: #f44336; }
+
+.tag-input {
+    border: none;
+    outline: none;
+    font-size: 0.85rem;
+    background: transparent;
+    min-width: 160px;
+    color: #444;
+}
+
+.tag-input::placeholder { color: #bbb; }
 
 .editor-footer {
     display: flex;

@@ -21,9 +21,15 @@ class Notepad {
         this.calNextBtn = document.getElementById('calNextBtn');
         this.calClearBtn = document.getElementById('calClearBtn');
 
+        this.tagInput = document.getElementById('tagInput');
+        this.tagList = document.getElementById('tagList');
+        this.tagFilterList = document.getElementById('tagFilterList');
+        this.tagClearBtn = document.getElementById('tagClearBtn');
+
         this.calYear = new Date().getFullYear();
         this.calMonth = new Date().getMonth();
         this.filterDate = null;
+        this.filterTag = null;
 
         this.newNoteBtn.addEventListener('click', () => this.createNote());
         this.deleteBtn.addEventListener('click', () => this.deleteActiveNote());
@@ -52,6 +58,28 @@ class Notepad {
             this.filterDate = null;
             this.calClearBtn.hidden = true;
             this.renderCalendar();
+            this.renderList();
+        });
+        this.tagInput.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            const tag = this.tagInput.value.trim();
+            if (!tag) return;
+            const note = this.notes.find(n => n.id === this.activeId);
+            if (!note) return;
+            if (!note.tags) note.tags = [];
+            if (!note.tags.includes(tag)) {
+                note.tags.push(tag);
+                this.persist();
+                this.renderTagEditor(note);
+                this.renderTagFilter();
+            }
+            this.tagInput.value = '';
+        });
+        this.tagClearBtn.addEventListener('click', () => {
+            this.filterTag = null;
+            this.tagClearBtn.hidden = true;
+            this.renderTagFilter();
             this.renderList();
         });
 
@@ -83,6 +111,7 @@ class Notepad {
             title: '',
             body: '',
             format: 'text',
+            tags: [],
             updatedAt: Date.now(),
         };
         this.notes.unshift(note);
@@ -101,6 +130,7 @@ class Notepad {
         this.formatSelect.value = note.format || 'text';
         this.updatedAt.textContent = this.formatDate(note.updatedAt);
         this.updateFormatView();
+        this.renderTagEditor(note);
         this.render();
     }
 
@@ -144,6 +174,7 @@ class Notepad {
             this.formatSelect.value = 'text';
             this.updatedAt.textContent = '';
             this.previewPane.hidden = true;
+            this.tagList.innerHTML = '';
             this.render();
         }
     }
@@ -155,6 +186,7 @@ class Notepad {
 
     render() {
         this.renderCalendar();
+        this.renderTagFilter();
         this.renderList();
     }
 
@@ -209,6 +241,10 @@ class Notepad {
             });
         }
 
+        if (this.filterTag) {
+            notes = notes.filter(n => n.tags && n.tags.includes(this.filterTag));
+        }
+
         notes.forEach(note => {
             const li = document.createElement('li');
             li.className = 'note-item' + (note.id === this.activeId ? ' active' : '');
@@ -219,6 +255,41 @@ class Notepad {
             li.addEventListener('click', () => this.selectNote(note.id));
             this.noteList.appendChild(li);
         });
+    }
+
+    renderTagEditor(note) {
+        this.tagList.innerHTML = '';
+        (note.tags || []).forEach(tag => {
+            const chip = document.createElement('span');
+            chip.className = 'tag-chip';
+            chip.innerHTML = `${this.escapeHtml(tag)}<button class="tag-chip-remove" title="削除">×</button>`;
+            chip.querySelector('.tag-chip-remove').addEventListener('click', () => {
+                note.tags = note.tags.filter(t => t !== tag);
+                this.persist();
+                this.renderTagEditor(note);
+                this.renderTagFilter();
+                this.renderList();
+            });
+            this.tagList.appendChild(chip);
+        });
+    }
+
+    renderTagFilter() {
+        const allTags = [...new Set(this.notes.flatMap(n => n.tags || []))].sort();
+        this.tagFilterList.innerHTML = '';
+        allTags.forEach(tag => {
+            const chip = document.createElement('span');
+            chip.className = 'tag-filter-chip' + (this.filterTag === tag ? ' active' : '');
+            chip.textContent = tag;
+            chip.addEventListener('click', () => {
+                this.filterTag = this.filterTag === tag ? null : tag;
+                this.tagClearBtn.hidden = !this.filterTag;
+                this.renderTagFilter();
+                this.renderList();
+            });
+            this.tagFilterList.appendChild(chip);
+        });
+        this.tagClearBtn.hidden = !this.filterTag;
     }
 
     escapeHtml(str) {
