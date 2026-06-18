@@ -45,6 +45,14 @@ class Notepad {
         document.getElementById('openMenuBtn').addEventListener('click', () => this.openSidebar());
         document.getElementById('closeMenuBtn').addEventListener('click', () => this.closeSidebar());
 
+        const storageInfoBtn = document.getElementById('storageInfoBtn');
+        const storageInfoPanel = document.getElementById('storageInfoPanel');
+        storageInfoBtn.addEventListener('click', () => {
+            const open = !storageInfoPanel.hidden;
+            storageInfoPanel.hidden = open;
+            storageInfoBtn.classList.toggle('active', !open);
+        });
+
         this.newNoteBtn.addEventListener('click', () => this.createNote());
         this.deleteBtn.addEventListener('click', () => this.deleteActiveNote());
         this.exportBtn.addEventListener('click', () => this.exportCsv());

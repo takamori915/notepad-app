@@ -21,8 +21,18 @@
                         ↑ CSV取り込み
                         <input type="file" id="importInput" accept=".csv" hidden>
                     </label>
+                    <button id="storageInfoBtn" class="storage-info-btn" title="データの保存場所について">?</button>
                 </div>
-                <p class="storage-notice">⚠ データはブラウザに保存されます。キャッシュクリアで消えるため、定期的にCSV出力でバックアップを推奨します。</p>
+                <div id="storageInfoPanel" class="storage-info-panel" hidden>
+                    <p class="storage-info-title">⚠ データの保存について</p>
+                    <p class="storage-info-body">このアプリのデータは <strong>ブラウザのローカルストレージ</strong> に保存されています。そのため、以下の操作でデータが失われる可能性があります。</p>
+                    <ul class="storage-info-list">
+                        <li>ブラウザのキャッシュ・Cookie のクリア</li>
+                        <li>ブラウザのアンインストール</li>
+                        <li>別のブラウザやデバイスからのアクセス</li>
+                    </ul>
+                    <p class="storage-info-body">大切なメモは定期的に <strong>↓ CSV出力</strong> でバックアップを取ることをおすすめします。</p>
+                </div>
             </div>
             <div class="sidebar-tabs">
                 <button class="sidebar-tab active" data-tab="list">一覧</button>
