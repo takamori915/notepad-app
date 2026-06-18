@@ -103,7 +103,14 @@ body {
 .csv-controls {
     display: flex;
     gap: 0.5rem;
+    margin: 0 1rem 0.5rem;
+}
+
+.storage-notice {
     margin: 0 1rem 0.8rem;
+    font-size: 0.72rem;
+    color: #777;
+    line-height: 1.5;
 }
 
 .csv-btn {
