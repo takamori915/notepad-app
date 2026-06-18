@@ -107,27 +107,21 @@ body {
 }
 
 .storage-info-btn {
-    flex-shrink: 0;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 1px solid #3a3b42;
-    background: #2a2b31;
-    color: #aaa;
-    font-size: 0.8rem;
-    font-weight: bold;
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #f0c040;
+    font-size: 0.75rem;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s;
+    padding: 0 1rem 0.6rem;
+    opacity: 0.85;
 }
 
-.storage-info-btn:hover,
-.storage-info-btn.active {
-    background: #4a6cf7;
-    color: white;
-    border-color: #4a6cf7;
+.storage-info-btn:hover {
+    opacity: 1;
+    text-decoration: underline;
 }
 
 .storage-info-panel {
