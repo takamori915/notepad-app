@@ -9,6 +9,10 @@
 <body>
     <div class="app">
         <aside class="sidebar">
+            <div class="mobile-header">
+                <span class="mobile-title">メモ一覧</span>
+                <button id="closeMenuBtn" class="mobile-close-btn">✕</button>
+            </div>
             <button id="newNoteBtn" class="new-note-btn">+ 新規メモ</button>
             <div class="csv-controls">
                 <button id="exportBtn" class="csv-btn">↓ CSV出力</button>
@@ -47,6 +51,9 @@
             <ul id="noteList" class="note-list"></ul>
         </aside>
         <main class="editor">
+            <div class="mobile-editor-header">
+                <button id="openMenuBtn" class="mobile-menu-btn">☰ 一覧</button>
+            </div>
             <div class="editor-header">
                 <input id="titleInput" class="title-input" type="text" placeholder="タイトル">
                 <select id="formatSelect" class="format-select">

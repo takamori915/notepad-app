@@ -37,6 +37,10 @@ class Notepad {
         this.filterTag = null;
         this.filterFormat = null;
 
+        this.sidebar = document.querySelector('.sidebar');
+        document.getElementById('openMenuBtn').addEventListener('click', () => this.openSidebar());
+        document.getElementById('closeMenuBtn').addEventListener('click', () => this.closeSidebar());
+
         this.newNoteBtn.addEventListener('click', () => this.createNote());
         this.deleteBtn.addEventListener('click', () => this.deleteActiveNote());
         this.exportBtn.addEventListener('click', () => this.exportCsv());
@@ -139,6 +143,14 @@ class Notepad {
         }
     }
 
+    openSidebar() {
+        this.sidebar.classList.add('open');
+    }
+
+    closeSidebar() {
+        this.sidebar.classList.remove('open');
+    }
+
     loadNotes() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
@@ -171,6 +183,7 @@ class Notepad {
 
     selectNote(id) {
         this.activeId = id;
+        this.closeSidebar();
         const note = this.notes.find(n => n.id === id);
         if (!note) return;
         this.titleInput.value = note.title;
