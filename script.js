@@ -25,6 +25,7 @@ class Notepad {
         this.tagList = document.getElementById('tagList');
         this.tagFilterList = document.getElementById('tagFilterList');
         this.tagClearBtn = document.getElementById('tagClearBtn');
+        this.tagSuggestions = document.getElementById('tagSuggestions');
 
         this.calYear = new Date().getFullYear();
         this.calMonth = new Date().getMonth();
@@ -276,6 +277,11 @@ class Notepad {
 
     renderTagFilter() {
         const allTags = [...new Set(this.notes.flatMap(n => n.tags || []))].sort();
+
+        this.tagSuggestions.innerHTML = allTags
+            .map(t => `<option value="${this.escapeHtml(t)}">`)
+            .join('');
+
         this.tagFilterList.innerHTML = '';
         allTags.forEach(tag => {
             const chip = document.createElement('span');
