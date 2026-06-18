@@ -26,6 +26,13 @@
                 <div class="calendar-grid" id="calGrid"></div>
                 <button id="calClearBtn" class="cal-clear" hidden>絞り込み解除</button>
             </div>
+            <div class="tag-filter-section">
+                <div class="tag-filter-header">
+                    <span class="tag-filter-title">タグ</span>
+                    <button id="tagClearBtn" class="tag-clear-btn" hidden>解除</button>
+                </div>
+                <div id="tagFilterList" class="tag-filter-list"></div>
+            </div>
             <ul id="noteList" class="note-list"></ul>
         </aside>
         <main class="editor">
@@ -39,6 +46,11 @@
             <div id="editorBody" class="editor-body">
                 <textarea id="bodyInput" class="body-input" placeholder="メモを入力..."></textarea>
                 <div id="previewPane" class="preview-pane" hidden></div>
+            </div>
+            <div class="tag-editor">
+                <div id="tagList" class="tag-list"></div>
+                <input id="tagInput" class="tag-input" type="text" placeholder="タグを追加 (Enterで確定)" list="tagSuggestions" autocomplete="off">
+                <datalist id="tagSuggestions"></datalist>
             </div>
             <div class="editor-footer">
                 <span id="updatedAt" class="updated-at"></span>
