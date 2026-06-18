@@ -37,6 +37,14 @@ class Notepad {
         this.filterTag = null;
         this.filterFormat = null;
 
+        this.sidebar = document.querySelector('.sidebar');
+        this.filterTab = document.querySelector('.sidebar-tab[data-tab="filter"]');
+        document.querySelectorAll('.sidebar-tab').forEach(tab => {
+            tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
+        });
+        document.getElementById('openMenuBtn').addEventListener('click', () => this.openSidebar());
+        document.getElementById('closeMenuBtn').addEventListener('click', () => this.closeSidebar());
+
         this.newNoteBtn.addEventListener('click', () => this.createNote());
         this.deleteBtn.addEventListener('click', () => this.deleteActiveNote());
         this.exportBtn.addEventListener('click', () => this.exportCsv());
@@ -139,6 +147,19 @@ class Notepad {
         }
     }
 
+    switchTab(tabName) {
+        document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+        document.querySelectorAll('.sidebar-tab-panel').forEach(p => p.hidden = p.dataset.panel !== tabName);
+    }
+
+    openSidebar() {
+        this.sidebar.classList.add('open');
+    }
+
+    closeSidebar() {
+        this.sidebar.classList.remove('open');
+    }
+
     loadNotes() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
@@ -171,6 +192,7 @@ class Notepad {
 
     selectNote(id) {
         this.activeId = id;
+        this.closeSidebar();
         const note = this.notes.find(n => n.id === id);
         if (!note) return;
         this.titleInput.value = note.title;
@@ -320,8 +342,10 @@ class Notepad {
     renderList() {
         this.noteList.innerHTML = '';
         const notes = this.getFilteredNotes();
-        const isFiltered = this.filterDate || this.filterMonth || this.filterTag || this.filterFormat;
-        this.exportBtn.textContent = isFiltered ? `↓ CSV出力 (${notes.length}件)` : '↓ CSV出力';
+        const filterCount = [this.filterDate || this.filterMonth, this.filterTag, this.filterFormat].filter(Boolean).length;
+        this.exportBtn.textContent = filterCount ? `↓ CSV出力 (${notes.length}件)` : '↓ CSV出力';
+        const badge = filterCount ? `<span class="filter-badge">${filterCount}</span>` : '';
+        this.filterTab.innerHTML = `フィルター${badge}`;
 
         notes.forEach(note => {
             const li = document.createElement('li');
