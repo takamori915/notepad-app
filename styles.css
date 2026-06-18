@@ -167,6 +167,10 @@ body {
     gap: 0.5rem;
 }
 
+.todo-pane[hidden] {
+    display: none;
+}
+
 .todo-items {
     list-style: none;
     display: flex;
