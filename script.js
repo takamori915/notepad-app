@@ -33,6 +33,7 @@ class Notepad {
         this.calYear = new Date().getFullYear();
         this.calMonth = new Date().getMonth();
         this.filterDate = null;
+        this.filterMonth = null;
         this.filterTag = null;
         this.filterFormat = null;
 
@@ -61,7 +62,17 @@ class Notepad {
         });
         this.calClearBtn.addEventListener('click', () => {
             this.filterDate = null;
+            this.filterMonth = null;
             this.calClearBtn.hidden = true;
+            this.renderCalendar();
+            this.renderList();
+        });
+        this.calTitle.style.cursor = 'pointer';
+        this.calTitle.addEventListener('click', () => {
+            const key = `${this.calYear}-${this.calMonth}`;
+            this.filterMonth = this.filterMonth === key ? null : key;
+            this.filterDate = null;
+            this.calClearBtn.hidden = !this.filterMonth;
             this.renderCalendar();
             this.renderList();
         });
@@ -239,7 +250,9 @@ class Notepad {
 
     renderCalendar() {
         const y = this.calYear, m = this.calMonth;
+        const isMonthSelected = this.filterMonth === `${y}-${m}`;
         this.calTitle.textContent = `${y}年${m + 1}月`;
+        this.calTitle.classList.toggle('selected', isMonthSelected);
 
         const noteDates = new Set(this.notes.map(n => {
             const d = new Date(n.updatedAt);
@@ -276,8 +289,7 @@ class Notepad {
         });
     }
 
-    renderList() {
-        this.noteList.innerHTML = '';
+    getFilteredNotes() {
         let notes = this.notes.slice().sort((a, b) => b.updatedAt - a.updatedAt);
 
         if (this.filterDate) {
@@ -285,6 +297,12 @@ class Notepad {
             notes = notes.filter(n => {
                 const d = new Date(n.updatedAt);
                 return d.getFullYear() === fy && d.getMonth() === fm && d.getDate() === fd;
+            });
+        } else if (this.filterMonth) {
+            const [fy, fm] = this.filterMonth.split('-').map(Number);
+            notes = notes.filter(n => {
+                const d = new Date(n.updatedAt);
+                return d.getFullYear() === fy && d.getMonth() === fm;
             });
         }
 
@@ -295,6 +313,15 @@ class Notepad {
         if (this.filterFormat) {
             notes = notes.filter(n => (n.format || 'text') === this.filterFormat);
         }
+
+        return notes;
+    }
+
+    renderList() {
+        this.noteList.innerHTML = '';
+        const notes = this.getFilteredNotes();
+        const isFiltered = this.filterDate || this.filterMonth || this.filterTag || this.filterFormat;
+        this.exportBtn.textContent = isFiltered ? `↓ CSV出力 (${notes.length}件)` : '↓ CSV出力';
 
         notes.forEach(note => {
             const li = document.createElement('li');
@@ -394,7 +421,7 @@ class Notepad {
 
     exportCsv() {
         const header = ['id', 'title', 'body', 'format', 'updatedAt'];
-        const rows = this.notes.map(n => [
+        const rows = this.getFilteredNotes().map(n => [
             this.csvEscape(n.id),
             this.csvEscape(n.title),
             this.csvEscape(n.body),
