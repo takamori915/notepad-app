@@ -9,44 +9,63 @@
 <body>
     <div class="app">
         <aside class="sidebar">
-            <button id="newNoteBtn" class="new-note-btn">+ 新規メモ</button>
-            <div class="csv-controls">
-                <button id="exportBtn" class="csv-btn">↓ CSV出力</button>
-                <label class="csv-btn import-label">
-                    ↑ CSV取り込み
-                    <input type="file" id="importInput" accept=".csv" hidden>
-                </label>
+            <div class="mobile-header">
+                <span class="mobile-title">メモ帳</span>
+                <button id="closeMenuBtn" class="mobile-close-btn">✕</button>
             </div>
-            <div class="calendar">
-                <div class="calendar-header">
-                    <button id="calPrevBtn" class="cal-nav">&#8249;</button>
-                    <span id="calTitle" class="cal-title"></span>
-                    <button id="calNextBtn" class="cal-nav">&#8250;</button>
-                </div>
-                <div class="calendar-grid" id="calGrid"></div>
-                <button id="calClearBtn" class="cal-clear" hidden>絞り込み解除</button>
-            </div>
-            <div class="format-filter-section">
-                <div class="tag-filter-header">
-                    <span class="tag-filter-title">形式</span>
-                    <button id="formatClearBtn" class="tag-clear-btn" hidden>解除</button>
-                </div>
-                <div class="tag-filter-list">
-                    <span class="tag-filter-chip" data-format="text">テキスト</span>
-                    <span class="tag-filter-chip" data-format="markdown">MD</span>
-                    <span class="tag-filter-chip" data-format="todo">TODO</span>
+            <div class="sidebar-actions">
+                <button id="newNoteBtn" class="new-note-btn">+ 新規メモ</button>
+                <div class="csv-controls">
+                    <button id="exportBtn" class="csv-btn">↓ CSV出力</button>
+                    <label class="csv-btn import-label">
+                        ↑ CSV取り込み
+                        <input type="file" id="importInput" accept=".csv" hidden>
+                    </label>
                 </div>
             </div>
-            <div class="tag-filter-section">
-                <div class="tag-filter-header">
-                    <span class="tag-filter-title">タグ</span>
-                    <button id="tagClearBtn" class="tag-clear-btn" hidden>解除</button>
-                </div>
-                <div id="tagFilterList" class="tag-filter-list"></div>
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-tab="list">一覧</button>
+                <button class="sidebar-tab" data-tab="filter">フィルター</button>
             </div>
-            <ul id="noteList" class="note-list"></ul>
+            <div class="sidebar-tab-panel" data-panel="list">
+                <ul id="noteList" class="note-list"></ul>
+            </div>
+            <div class="sidebar-tab-panel" data-panel="filter" hidden>
+                <div class="filter-panel">
+                    <div class="calendar">
+                        <div class="calendar-header">
+                            <button id="calPrevBtn" class="cal-nav">&#8249;</button>
+                            <span id="calTitle" class="cal-title"></span>
+                            <button id="calNextBtn" class="cal-nav">&#8250;</button>
+                        </div>
+                        <div class="calendar-grid" id="calGrid"></div>
+                        <button id="calClearBtn" class="cal-clear" hidden>絞り込み解除</button>
+                    </div>
+                    <div class="format-filter-section">
+                        <div class="tag-filter-header">
+                            <span class="tag-filter-title">形式</span>
+                            <button id="formatClearBtn" class="tag-clear-btn" hidden>解除</button>
+                        </div>
+                        <div class="tag-filter-list">
+                            <span class="tag-filter-chip" data-format="text">テキスト</span>
+                            <span class="tag-filter-chip" data-format="markdown">MD</span>
+                            <span class="tag-filter-chip" data-format="todo">TODO</span>
+                        </div>
+                    </div>
+                    <div class="tag-filter-section">
+                        <div class="tag-filter-header">
+                            <span class="tag-filter-title">タグ</span>
+                            <button id="tagClearBtn" class="tag-clear-btn" hidden>解除</button>
+                        </div>
+                        <div id="tagFilterList" class="tag-filter-list"></div>
+                    </div>
+                </div>
+            </div>
         </aside>
         <main class="editor">
+            <div class="mobile-editor-header">
+                <button id="openMenuBtn" class="mobile-menu-btn">☰ 一覧</button>
+            </div>
             <div class="editor-header">
                 <input id="titleInput" class="title-input" type="text" placeholder="タイトル">
                 <select id="formatSelect" class="format-select">
