@@ -17,6 +17,15 @@
                     <input type="file" id="importInput" accept=".csv" hidden>
                 </label>
             </div>
+            <div class="calendar">
+                <div class="calendar-header">
+                    <button id="calPrevBtn" class="cal-nav">&#8249;</button>
+                    <span id="calTitle" class="cal-title"></span>
+                    <button id="calNextBtn" class="cal-nav">&#8250;</button>
+                </div>
+                <div class="calendar-grid" id="calGrid"></div>
+                <button id="calClearBtn" class="cal-clear" hidden>絞り込み解除</button>
+            </div>
             <ul id="noteList" class="note-list"></ul>
         </aside>
         <main class="editor">
