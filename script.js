@@ -15,6 +15,15 @@ class Notepad {
         this.deleteBtn = document.getElementById('deleteBtn');
         this.exportBtn = document.getElementById('exportBtn');
         this.importInput = document.getElementById('importInput');
+        this.calGrid = document.getElementById('calGrid');
+        this.calTitle = document.getElementById('calTitle');
+        this.calPrevBtn = document.getElementById('calPrevBtn');
+        this.calNextBtn = document.getElementById('calNextBtn');
+        this.calClearBtn = document.getElementById('calClearBtn');
+
+        this.calYear = new Date().getFullYear();
+        this.calMonth = new Date().getMonth();
+        this.filterDate = null;
 
         this.newNoteBtn.addEventListener('click', () => this.createNote());
         this.deleteBtn.addEventListener('click', () => this.deleteActiveNote());
@@ -29,7 +38,24 @@ class Notepad {
             this.saveActiveNote();
             this.updateFormatView();
         });
+        this.calPrevBtn.addEventListener('click', () => {
+            this.calMonth--;
+            if (this.calMonth < 0) { this.calMonth = 11; this.calYear--; }
+            this.renderCalendar();
+        });
+        this.calNextBtn.addEventListener('click', () => {
+            this.calMonth++;
+            if (this.calMonth > 11) { this.calMonth = 0; this.calYear++; }
+            this.renderCalendar();
+        });
+        this.calClearBtn.addEventListener('click', () => {
+            this.filterDate = null;
+            this.calClearBtn.hidden = true;
+            this.renderCalendar();
+            this.renderList();
+        });
 
+        this.renderCalendar();
         this.render();
         if (this.notes.length > 0) {
             this.selectNote(this.notes[0].id);
@@ -128,24 +154,71 @@ class Notepad {
     }
 
     render() {
+        this.renderCalendar();
         this.renderList();
+    }
+
+    renderCalendar() {
+        const y = this.calYear, m = this.calMonth;
+        this.calTitle.textContent = `${y}年${m + 1}月`;
+
+        const noteDates = new Set(this.notes.map(n => {
+            const d = new Date(n.updatedAt);
+            return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        }));
+
+        const today = new Date();
+        const firstDay = new Date(y, m, 1).getDay();
+        const daysInMonth = new Date(y, m + 1, 0).getDate();
+
+        const dows = ['日','月','火','水','木','金','土'];
+        let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
+        for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+            const key = `${y}-${m}-${d}`;
+            const isToday = today.getFullYear() === y && today.getMonth() === m && today.getDate() === d;
+            const hasNote = noteDates.has(key);
+            const isSelected = this.filterDate === key;
+            let cls = 'cal-day';
+            if (hasNote) cls += ' has-note';
+            if (isToday) cls += ' today';
+            if (isSelected) cls += ' selected';
+            html += `<div class="${cls}" data-key="${key}">${d}</div>`;
+        }
+
+        this.calGrid.innerHTML = html;
+        this.calGrid.querySelectorAll('.cal-day.has-note').forEach(el => {
+            el.addEventListener('click', () => {
+                this.filterDate = el.dataset.key;
+                this.calClearBtn.hidden = false;
+                this.renderCalendar();
+                this.renderList();
+            });
+        });
     }
 
     renderList() {
         this.noteList.innerHTML = '';
-        this.notes
-            .slice()
-            .sort((a, b) => b.updatedAt - a.updatedAt)
-            .forEach(note => {
-                const li = document.createElement('li');
-                li.className = 'note-item' + (note.id === this.activeId ? ' active' : '');
-                li.innerHTML = `
-                    <div class="note-title">${this.escapeHtml(note.title) || '無題のメモ'}</div>
-                    <div class="note-preview">${this.escapeHtml(note.body.slice(0, 40))}</div>
-                `;
-                li.addEventListener('click', () => this.selectNote(note.id));
-                this.noteList.appendChild(li);
+        let notes = this.notes.slice().sort((a, b) => b.updatedAt - a.updatedAt);
+
+        if (this.filterDate) {
+            const [fy, fm, fd] = this.filterDate.split('-').map(Number);
+            notes = notes.filter(n => {
+                const d = new Date(n.updatedAt);
+                return d.getFullYear() === fy && d.getMonth() === fm && d.getDate() === fd;
             });
+        }
+
+        notes.forEach(note => {
+            const li = document.createElement('li');
+            li.className = 'note-item' + (note.id === this.activeId ? ' active' : '');
+            li.innerHTML = `
+                <div class="note-title">${this.escapeHtml(note.title) || '無題のメモ'}</div>
+                <div class="note-preview">${this.escapeHtml(note.body.slice(0, 40))}</div>
+            `;
+            li.addEventListener('click', () => this.selectNote(note.id));
+            this.noteList.appendChild(li);
+        });
     }
 
     escapeHtml(str) {
