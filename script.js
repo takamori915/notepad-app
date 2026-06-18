@@ -26,11 +26,15 @@ class Notepad {
         this.tagFilterList = document.getElementById('tagFilterList');
         this.tagClearBtn = document.getElementById('tagClearBtn');
         this.tagSuggestions = document.getElementById('tagSuggestions');
+        this.todoPane = document.getElementById('todoPane');
+        this.todoItems = document.getElementById('todoItems');
+        this.todoInput = document.getElementById('todoInput');
 
         this.calYear = new Date().getFullYear();
         this.calMonth = new Date().getMonth();
         this.filterDate = null;
         this.filterTag = null;
+        this.filterFormat = null;
 
         this.newNoteBtn.addEventListener('click', () => this.createNote());
         this.deleteBtn.addEventListener('click', () => this.deleteActiveNote());
@@ -83,6 +87,37 @@ class Notepad {
             this.renderTagFilter();
             this.renderList();
         });
+        this.todoInput.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            const text = this.todoInput.value.trim();
+            if (!text) return;
+            const note = this.notes.find(n => n.id === this.activeId);
+            if (!note) return;
+            if (!note.todos) note.todos = [];
+            note.todos.push({ id: Date.now().toString(), text, done: false });
+            note.updatedAt = Date.now();
+            this.persist();
+            this.renderTodoPane(note);
+            this.todoInput.value = '';
+        });
+        document.querySelectorAll('.format-filter-section .tag-filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const fmt = chip.dataset.format;
+                this.filterFormat = this.filterFormat === fmt ? null : fmt;
+                document.getElementById('formatClearBtn').hidden = !this.filterFormat;
+                document.querySelectorAll('.format-filter-section .tag-filter-chip').forEach(c => {
+                    c.classList.toggle('active', c.dataset.format === this.filterFormat);
+                });
+                this.renderList();
+            });
+        });
+        document.getElementById('formatClearBtn').addEventListener('click', () => {
+            this.filterFormat = null;
+            document.getElementById('formatClearBtn').hidden = true;
+            document.querySelectorAll('.format-filter-section .tag-filter-chip').forEach(c => c.classList.remove('active'));
+            this.renderList();
+        });
 
         this.renderCalendar();
         this.render();
@@ -113,6 +148,7 @@ class Notepad {
             body: '',
             format: 'text',
             tags: [],
+            todos: [],
             updatedAt: Date.now(),
         };
         this.notes.unshift(note);
@@ -132,6 +168,7 @@ class Notepad {
         this.updatedAt.textContent = this.formatDate(note.updatedAt);
         this.updateFormatView();
         this.renderTagEditor(note);
+        this.renderTodoPane(note);
         this.render();
     }
 
@@ -148,10 +185,16 @@ class Notepad {
     }
 
     updateFormatView() {
-        const isMarkdown = this.formatSelect.value === 'markdown';
-        this.previewPane.hidden = !isMarkdown;
-        if (isMarkdown) {
-            this.updatePreview();
+        const fmt = this.formatSelect.value;
+        const isMd = fmt === 'markdown';
+        const isTodo = fmt === 'todo';
+        this.bodyInput.hidden = isTodo;
+        this.previewPane.hidden = !isMd;
+        this.todoPane.hidden = !isTodo;
+        if (isMd) this.updatePreview();
+        if (isTodo) {
+            const note = this.notes.find(n => n.id === this.activeId);
+            if (note) this.renderTodoPane(note);
         }
     }
 
@@ -175,7 +218,9 @@ class Notepad {
             this.formatSelect.value = 'text';
             this.updatedAt.textContent = '';
             this.previewPane.hidden = true;
+            this.todoPane.hidden = true;
             this.tagList.innerHTML = '';
+            this.todoItems.innerHTML = '';
             this.render();
         }
     }
@@ -246,6 +291,10 @@ class Notepad {
             notes = notes.filter(n => n.tags && n.tags.includes(this.filterTag));
         }
 
+        if (this.filterFormat) {
+            notes = notes.filter(n => (n.format || 'text') === this.filterFormat);
+        }
+
         notes.forEach(note => {
             const li = document.createElement('li');
             li.className = 'note-item' + (note.id === this.activeId ? ' active' : '');
@@ -255,6 +304,39 @@ class Notepad {
             `;
             li.addEventListener('click', () => this.selectNote(note.id));
             this.noteList.appendChild(li);
+        });
+    }
+
+    renderTodoPane(note) {
+        this.todoItems.innerHTML = '';
+        (note.todos || []).forEach(todo => {
+            const li = document.createElement('li');
+            li.className = 'todo-item' + (todo.done ? ' done' : '');
+            li.innerHTML = `
+                <input type="checkbox" ${todo.done ? 'checked' : ''}>
+                <input type="text" class="todo-item-text" value="${this.escapeHtml(todo.text)}">
+                <button class="todo-item-delete">×</button>
+            `;
+            li.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+                todo.done = e.target.checked;
+                li.classList.toggle('done', todo.done);
+                note.updatedAt = Date.now();
+                this.persist();
+                this.renderList();
+            });
+            li.querySelector('.todo-item-text').addEventListener('input', (e) => {
+                todo.text = e.target.value;
+                note.updatedAt = Date.now();
+                this.persist();
+            });
+            li.querySelector('.todo-item-delete').addEventListener('click', () => {
+                note.todos = note.todos.filter(t => t.id !== todo.id);
+                note.updatedAt = Date.now();
+                this.persist();
+                this.renderTodoPane(note);
+                this.renderList();
+            });
+            this.todoItems.appendChild(li);
         });
     }
 

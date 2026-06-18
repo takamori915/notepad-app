@@ -26,6 +26,17 @@
                 <div class="calendar-grid" id="calGrid"></div>
                 <button id="calClearBtn" class="cal-clear" hidden>絞り込み解除</button>
             </div>
+            <div class="format-filter-section">
+                <div class="tag-filter-header">
+                    <span class="tag-filter-title">形式</span>
+                    <button id="formatClearBtn" class="tag-clear-btn" hidden>解除</button>
+                </div>
+                <div class="tag-filter-list">
+                    <span class="tag-filter-chip" data-format="text">テキスト</span>
+                    <span class="tag-filter-chip" data-format="markdown">MD</span>
+                    <span class="tag-filter-chip" data-format="todo">TODO</span>
+                </div>
+            </div>
             <div class="tag-filter-section">
                 <div class="tag-filter-header">
                     <span class="tag-filter-title">タグ</span>
@@ -41,11 +52,18 @@
                 <select id="formatSelect" class="format-select">
                     <option value="text">テキスト</option>
                     <option value="markdown">Markdown</option>
+                    <option value="todo">TODOリスト</option>
                 </select>
             </div>
             <div id="editorBody" class="editor-body">
                 <textarea id="bodyInput" class="body-input" placeholder="メモを入力..."></textarea>
                 <div id="previewPane" class="preview-pane" hidden></div>
+                <div id="todoPane" class="todo-pane" hidden>
+                    <ul id="todoItems" class="todo-items"></ul>
+                    <div class="todo-add">
+                        <input id="todoInput" class="todo-input" type="text" placeholder="タスクを追加 (Enterで確定)">
+                    </div>
+                </div>
             </div>
             <div class="tag-editor">
                 <div id="tagList" class="tag-list"></div>
