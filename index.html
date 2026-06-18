@@ -22,6 +22,16 @@
                         <input type="file" id="importInput" accept=".csv" hidden>
                     </label>
                 </div>
+                <button id="storageInfoBtn" class="storage-info-btn">⚠ データの保存について</button>
+                <div id="storageInfoPanel" class="storage-info-panel" hidden>
+                    <p class="storage-info-body">このアプリのデータは <strong>ブラウザのローカルストレージ</strong> に保存されています。そのため、以下の操作でデータが失われる可能性があります。</p>
+                    <ul class="storage-info-list">
+                        <li>ブラウザのキャッシュ・Cookie のクリア</li>
+                        <li>ブラウザのアンインストール</li>
+                        <li>別のブラウザやデバイスからのアクセス</li>
+                    </ul>
+                    <p class="storage-info-body">大切なメモは定期的に <strong>↓ CSV出力</strong> でバックアップを取ることをおすすめします。</p>
+                </div>
             </div>
             <div class="sidebar-tabs">
                 <button class="sidebar-tab active" data-tab="list">一覧</button>

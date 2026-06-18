@@ -103,7 +103,63 @@ body {
 .csv-controls {
     display: flex;
     gap: 0.5rem;
+    margin: 0 1rem 0.5rem;
+}
+
+.storage-info-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #f0c040;
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0 1rem 0.6rem;
+    opacity: 0.85;
+}
+
+.storage-info-btn:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.storage-info-panel {
     margin: 0 1rem 0.8rem;
+    background: #2a2b31;
+    border: 1px solid #3a3b42;
+    border-radius: 8px;
+    padding: 0.8rem;
+}
+
+.storage-info-panel[hidden] {
+    display: none;
+}
+
+.storage-info-title {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #f0c040;
+    margin-bottom: 0.5rem;
+}
+
+.storage-info-body {
+    font-size: 0.75rem;
+    color: #bbb;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.storage-info-body strong {
+    color: #eee;
+}
+
+.storage-info-list {
+    font-size: 0.75rem;
+    color: #bbb;
+    line-height: 1.7;
+    padding-left: 1.2rem;
+    margin-bottom: 0.5rem;
 }
 
 .csv-btn {
