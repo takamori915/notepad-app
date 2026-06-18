@@ -36,6 +36,7 @@ class Notepad {
         this.filterMonth = null;
         this.filterTag = null;
         this.filterFormat = null;
+        this.exportCount = 0;
 
         this.sidebar = document.querySelector('.sidebar');
         this.filterTab = document.querySelector('.sidebar-tab[data-tab="filter"]');
@@ -462,11 +463,18 @@ class Notepad {
         ].join(','));
 
         const csv = '﻿' + [header.join(','), ...rows].join('\r\n');
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const dateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
+        const timeStr = `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+        this.exportCount++;
+        const seq = String(this.exportCount).padStart(2, '0');
+        const filename = `note_${dateStr}_${timeStr}_${seq}.csv`;
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'notes.csv';
+        a.download = filename;
         a.click();
         URL.revokeObjectURL(url);
     }
