@@ -234,6 +234,7 @@ class Notepad {
         this.renderCalendar();
         this.renderTagFilter();
         this.renderList();
+        if (this.activeId) this.updateFormatView();
     }
 
     renderCalendar() {
