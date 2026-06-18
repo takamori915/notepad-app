@@ -11,9 +11,13 @@ class Notepad {
         this.updatedAt = document.getElementById('updatedAt');
         this.newNoteBtn = document.getElementById('newNoteBtn');
         this.deleteBtn = document.getElementById('deleteBtn');
+        this.exportBtn = document.getElementById('exportBtn');
+        this.importInput = document.getElementById('importInput');
 
         this.newNoteBtn.addEventListener('click', () => this.createNote());
         this.deleteBtn.addEventListener('click', () => this.deleteActiveNote());
+        this.exportBtn.addEventListener('click', () => this.exportCsv());
+        this.importInput.addEventListener('change', (e) => this.importCsv(e));
         this.titleInput.addEventListener('input', () => this.saveActiveNote());
         this.bodyInput.addEventListener('input', () => this.saveActiveNote());
 
@@ -118,6 +122,103 @@ class Notepad {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    csvEscape(str) {
+        const s = String(str ?? '');
+        return '"' + s.replace(/"/g, '""') + '"';
+    }
+
+    exportCsv() {
+        const header = ['id', 'title', 'body', 'format', 'updatedAt'];
+        const rows = this.notes.map(n => [
+            this.csvEscape(n.id),
+            this.csvEscape(n.title),
+            this.csvEscape(n.body),
+            this.csvEscape(n.format || 'text'),
+            this.csvEscape(new Date(n.updatedAt).toISOString()),
+        ].join(','));
+
+        const csv = '﻿' + [header.join(','), ...rows].join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'notes.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    importCsv(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const text = event.target.result.replace(/^﻿/, '');
+                const lines = this.parseCsvLines(text);
+                if (lines.length < 2) return;
+                const header = lines[0];
+                const idIdx = header.indexOf('id');
+                const titleIdx = header.indexOf('title');
+                const bodyIdx = header.indexOf('body');
+                const formatIdx = header.indexOf('format');
+                const updatedIdx = header.indexOf('updatedAt');
+
+                const imported = lines.slice(1).map(cols => ({
+                    id: cols[idIdx] || Date.now().toString(),
+                    title: cols[titleIdx] || '',
+                    body: cols[bodyIdx] || '',
+                    format: cols[formatIdx] || 'text',
+                    updatedAt: cols[updatedIdx] ? new Date(cols[updatedIdx]).getTime() : Date.now(),
+                }));
+
+                const existingIds = new Set(this.notes.map(n => n.id));
+                const newNotes = imported.filter(n => !existingIds.has(n.id));
+                this.notes = [...newNotes, ...this.notes];
+                this.persist();
+                this.render();
+                if (newNotes.length > 0) {
+                    this.selectNote(newNotes[0].id);
+                    alert(`${newNotes.length}件のメモを取り込みました。`);
+                } else {
+                    alert('新規のメモはありませんでした（重複はスキップしました）。');
+                }
+            } catch (err) {
+                alert('CSVの読み込みに失敗しました。');
+            }
+            e.target.value = '';
+        };
+        reader.readAsText(file, 'UTF-8');
+    }
+
+    parseCsvLines(text) {
+        const lines = [];
+        let cur = [];
+        let field = '';
+        let inQuote = false;
+        let i = 0;
+        while (i < text.length) {
+            const ch = text[i];
+            if (inQuote) {
+                if (ch === '"' && text[i + 1] === '"') { field += '"'; i += 2; continue; }
+                if (ch === '"') { inQuote = false; i++; continue; }
+                field += ch;
+            } else {
+                if (ch === '"') { inQuote = true; i++; continue; }
+                if (ch === ',') { cur.push(field); field = ''; i++; continue; }
+                if (ch === '\r' || ch === '\n') {
+                    cur.push(field); field = '';
+                    lines.push(cur); cur = [];
+                    if (ch === '\r' && text[i + 1] === '\n') i++;
+                    i++; continue;
+                }
+                field += ch;
+            }
+            i++;
+        }
+        if (field || cur.length) { cur.push(field); lines.push(cur); }
+        return lines;
     }
 }
 

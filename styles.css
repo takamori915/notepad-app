@@ -25,7 +25,7 @@ body {
 }
 
 .new-note-btn {
-    margin: 1rem;
+    margin: 1rem 1rem 0.5rem;
     padding: 0.7rem;
     background: #4a6cf7;
     color: white;
@@ -33,10 +33,38 @@ body {
     border-radius: 6px;
     font-size: 0.95rem;
     cursor: pointer;
+    width: calc(100% - 2rem);
 }
 
 .new-note-btn:hover {
     background: #3a5ce0;
+}
+
+.csv-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0 1rem 0.8rem;
+}
+
+.csv-btn {
+    flex: 1;
+    padding: 0.5rem;
+    background: #2a2b31;
+    color: #ccc;
+    border: 1px solid #3a3b42;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-align: center;
+}
+
+.csv-btn:hover {
+    background: #3a3b42;
+    color: white;
+}
+
+.import-label {
+    display: block;
 }
 
 .note-list {

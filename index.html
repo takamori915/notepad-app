@@ -10,6 +10,13 @@
     <div class="app">
         <aside class="sidebar">
             <button id="newNoteBtn" class="new-note-btn">+ 新規メモ</button>
+            <div class="csv-controls">
+                <button id="exportBtn" class="csv-btn">↓ CSV出力</button>
+                <label class="csv-btn import-label">
+                    ↑ CSV取り込み
+                    <input type="file" id="importInput" accept=".csv" hidden>
+                </label>
+            </div>
             <ul id="noteList" class="note-list"></ul>
         </aside>
         <main class="editor">
