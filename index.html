@@ -90,14 +90,16 @@
                 <div id="todoPane" class="todo-pane" hidden>
                     <ul id="todoItems" class="todo-items"></ul>
                     <div class="todo-add">
-                        <input id="todoInput" class="todo-input" type="text" placeholder="タスクを追加 (Enterで確定)">
+                        <input id="todoInput" class="todo-input" type="text" placeholder="タスクを追加">
+                        <button id="todoAddBtn" class="add-btn">+</button>
                     </div>
                 </div>
             </div>
             <div class="tag-editor">
                 <div id="tagList" class="tag-list"></div>
-                <input id="tagInput" class="tag-input" type="text" placeholder="タグを追加 (Enterで確定)" list="tagSuggestions" autocomplete="off">
+                <input id="tagInput" class="tag-input" type="text" placeholder="タグを追加" list="tagSuggestions" autocomplete="off">
                 <datalist id="tagSuggestions"></datalist>
+                <button id="tagAddBtn" class="add-btn">+</button>
             </div>
             <div class="editor-footer">
                 <span id="updatedAt" class="updated-at"></span>

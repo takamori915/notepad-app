@@ -96,19 +96,9 @@ class Notepad {
         this.tagInput.addEventListener('keydown', (e) => {
             if (e.key !== 'Enter') return;
             e.preventDefault();
-            const tag = this.tagInput.value.trim();
-            if (!tag) return;
-            const note = this.notes.find(n => n.id === this.activeId);
-            if (!note) return;
-            if (!note.tags) note.tags = [];
-            if (!note.tags.includes(tag)) {
-                note.tags.push(tag);
-                this.persist();
-                this.renderTagEditor(note);
-                this.renderTagFilter();
-            }
-            this.tagInput.value = '';
+            this.addTag();
         });
+        document.getElementById('tagAddBtn').addEventListener('click', () => this.addTag());
         this.tagClearBtn.addEventListener('click', () => {
             this.filterTag = null;
             this.tagClearBtn.hidden = true;
@@ -118,17 +108,9 @@ class Notepad {
         this.todoInput.addEventListener('keydown', (e) => {
             if (e.key !== 'Enter') return;
             e.preventDefault();
-            const text = this.todoInput.value.trim();
-            if (!text) return;
-            const note = this.notes.find(n => n.id === this.activeId);
-            if (!note) return;
-            if (!note.todos) note.todos = [];
-            note.todos.push({ id: Date.now().toString(), text, done: false });
-            note.updatedAt = Date.now();
-            this.persist();
-            this.renderTodoPane(note);
-            this.todoInput.value = '';
+            this.addTodo();
         });
+        document.getElementById('todoAddBtn').addEventListener('click', () => this.addTodo());
         document.querySelectorAll('.format-filter-section .tag-filter-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 const fmt = chip.dataset.format;
@@ -159,6 +141,34 @@ class Notepad {
     switchTab(tabName) {
         document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
         document.querySelectorAll('.sidebar-tab-panel').forEach(p => p.hidden = p.dataset.panel !== tabName);
+    }
+
+    addTag() {
+        const tag = this.tagInput.value.trim();
+        if (!tag) return;
+        const note = this.notes.find(n => n.id === this.activeId);
+        if (!note) return;
+        if (!note.tags) note.tags = [];
+        if (!note.tags.includes(tag)) {
+            note.tags.push(tag);
+            this.persist();
+            this.renderTagEditor(note);
+            this.renderTagFilter();
+        }
+        this.tagInput.value = '';
+    }
+
+    addTodo() {
+        const text = this.todoInput.value.trim();
+        if (!text) return;
+        const note = this.notes.find(n => n.id === this.activeId);
+        if (!note) return;
+        if (!note.todos) note.todos = [];
+        note.todos.push({ id: Date.now().toString(), text, done: false });
+        note.updatedAt = Date.now();
+        this.persist();
+        this.renderTodoPane(note);
+        this.todoInput.value = '';
     }
 
     openSidebar() {
