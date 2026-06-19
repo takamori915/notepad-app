@@ -318,7 +318,7 @@ body {
     border: none;
     background: transparent;
     outline: none;
-    color: #fff;
+    color: #eee;
 }
 
 .todo-item.done .todo-item-text {
@@ -341,7 +341,8 @@ body {
 .todo-add {
     display: flex;
     align-items: center;
-    border: 1px dashed #4a4b55;
+    background: #fff;
+    border: 1px solid #ddd;
     border-radius: 6px;
     padding: 0.4rem 0.6rem;
 }
@@ -352,10 +353,29 @@ body {
     outline: none;
     font-size: 0.9rem;
     background: transparent;
-    color: #fff;
+    color: #222;
 }
 
-.todo-input::placeholder { color: #bbb; }
+.todo-input::placeholder { color: #666; }
+
+.add-btn {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    border: none;
+    background: #4a6cf7;
+    color: white;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.add-btn:hover { background: #3a5ce0; }
 
 .tag-filter-section {
     margin: 0 0.7rem 0.8rem;
@@ -469,9 +489,11 @@ body {
     font-size: 1.6rem;
     font-weight: bold;
     border: none;
-    background: transparent;
+    background: #fff;
     outline: none;
-    color: #fff;
+    color: #222;
+    border-radius: 6px;
+    padding: 0.2rem 0.5rem;
 }
 
 .format-select {
@@ -493,12 +515,14 @@ body {
 .body-input {
     flex: 1;
     border: none;
-    background: transparent;
+    background: #fff;
     resize: none;
     font-size: 1rem;
     line-height: 1.6;
     outline: none;
-    color: #fff;
+    color: #222;
+    border-radius: 6px;
+    padding: 0.5rem;
 }
 
 .preview-pane {
@@ -539,8 +563,8 @@ body {
     align-items: center;
     gap: 0.4rem;
     padding: 0.5rem 0;
-    border-top: 1px solid #3a3b42;
-    margin-top: 0.5rem;
+    border-bottom: 1px solid #3a3b42;
+    margin-bottom: 0.5rem;
 }
 
 .tag-list {
@@ -577,12 +601,14 @@ body {
     border: none;
     outline: none;
     font-size: 0.85rem;
-    background: transparent;
-    min-width: 160px;
-    color: #fff;
+    background: #fff;
+    min-width: 120px;
+    color: #222;
+    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
 }
 
-.tag-input::placeholder { color: #bbb; }
+.tag-input::placeholder { color: #666; }
 
 .editor-footer {
     display: flex;

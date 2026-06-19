@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>メモ帳</title>
+    <title>Kakumee</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="app">
         <aside class="sidebar">
             <div class="mobile-header">
-                <span class="mobile-title">メモ帳</span>
+                <span class="mobile-title">Kakumee</span>
                 <button id="closeMenuBtn" class="mobile-close-btn">✕</button>
             </div>
             <div class="sidebar-actions">
@@ -84,20 +84,22 @@
                     <option value="markdown">Markdown</option>
                 </select>
             </div>
+            <div class="tag-editor">
+                <div id="tagList" class="tag-list"></div>
+                <input id="tagInput" class="tag-input" type="text" placeholder="タグを追加" list="tagSuggestions" autocomplete="off">
+                <datalist id="tagSuggestions"></datalist>
+                <button id="tagAddBtn" class="add-btn">+</button>
+            </div>
             <div id="editorBody" class="editor-body">
                 <textarea id="bodyInput" class="body-input" placeholder="メモを入力..."></textarea>
                 <div id="previewPane" class="preview-pane" hidden></div>
                 <div id="todoPane" class="todo-pane" hidden>
                     <ul id="todoItems" class="todo-items"></ul>
                     <div class="todo-add">
-                        <input id="todoInput" class="todo-input" type="text" placeholder="タスクを追加 (Enterで確定)">
+                        <input id="todoInput" class="todo-input" type="text" placeholder="タスクを追加">
+                        <button id="todoAddBtn" class="add-btn">+</button>
                     </div>
                 </div>
-            </div>
-            <div class="tag-editor">
-                <div id="tagList" class="tag-list"></div>
-                <input id="tagInput" class="tag-input" type="text" placeholder="タグを追加 (Enterで確定)" list="tagSuggestions" autocomplete="off">
-                <datalist id="tagSuggestions"></datalist>
             </div>
             <div class="editor-footer">
                 <span id="updatedAt" class="updated-at"></span>
