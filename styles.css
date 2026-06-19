@@ -479,7 +479,6 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    border-bottom: 1px solid #3a3b42;
     margin-bottom: 0.5rem;
     padding-bottom: 0.4rem;
 }
@@ -567,7 +566,6 @@ body {
     align-items: center;
     gap: 0.4rem;
     padding: 0.3rem 0;
-    border-bottom: 1px solid #3a3b42;
     margin-bottom: 0.3rem;
 }
 
