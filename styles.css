@@ -318,7 +318,7 @@ body {
     border: none;
     background: transparent;
     outline: none;
-    color: #222;
+    color: #eee;
 }
 
 .todo-item.done .todo-item-text {
