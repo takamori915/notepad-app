@@ -564,8 +564,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.2rem 0 0.2rem 0.5rem;
+    padding: 0.2rem 0;
     border-bottom: 1px solid #3a3b42;
     margin-bottom: 0.4rem;
 }
@@ -574,6 +573,10 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
+}
+
+.tag-list:not(:empty) {
+    margin-right: 0.4rem;
 }
 
 .tag-chip {
