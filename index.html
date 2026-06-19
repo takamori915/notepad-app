@@ -76,6 +76,12 @@
             <div class="mobile-editor-header">
                 <button id="openMenuBtn" class="mobile-menu-btn">☰ 一覧</button>
             </div>
+            <div class="tag-editor">
+                <div id="tagList" class="tag-list"></div>
+                <input id="tagInput" class="tag-input" type="text" placeholder="タグを追加" list="tagSuggestions" autocomplete="off">
+                <datalist id="tagSuggestions"></datalist>
+                <button id="tagAddBtn" class="add-btn">+</button>
+            </div>
             <div class="editor-header">
                 <input id="titleInput" class="title-input" type="text" placeholder="タイトル">
                 <select id="formatSelect" class="format-select">
@@ -83,12 +89,6 @@
                     <option value="todo">TODOリスト</option>
                     <option value="markdown">Markdown</option>
                 </select>
-            </div>
-            <div class="tag-editor">
-                <div id="tagList" class="tag-list"></div>
-                <input id="tagInput" class="tag-input" type="text" placeholder="タグを追加" list="tagSuggestions" autocomplete="off">
-                <datalist id="tagSuggestions"></datalist>
-                <button id="tagAddBtn" class="add-btn">+</button>
             </div>
             <div id="editorBody" class="editor-body">
                 <textarea id="bodyInput" class="body-input" placeholder="メモを入力..."></textarea>
