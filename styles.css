@@ -479,8 +479,8 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 0.8rem;
-    padding-bottom: 0.4rem;
+    margin-bottom: 0.4rem;
+    padding-bottom: 0.2rem;
 }
 
 .title-input {
@@ -565,9 +565,9 @@ body {
     flex-wrap: wrap;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.3rem 0;
+    padding: 0.2rem 0;
     border-bottom: 1px solid #3a3b42;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.4rem;
 }
 
 .tag-list {
