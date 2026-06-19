@@ -356,7 +356,7 @@ body {
     color: #222;
 }
 
-.todo-input::placeholder { color: #aaa; }
+.todo-input::placeholder { color: #666; }
 
 .add-btn {
     flex-shrink: 0;
@@ -608,7 +608,7 @@ body {
     padding: 0.2rem 0.4rem;
 }
 
-.tag-input::placeholder { color: #bbb; }
+.tag-input::placeholder { color: #666; }
 
 .editor-footer {
     display: flex;
