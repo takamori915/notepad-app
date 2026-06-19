@@ -505,6 +505,10 @@ body {
     cursor: pointer;
 }
 
+.title-row {
+    margin-bottom: 0.8rem;
+}
+
 .editor-body {
     flex: 1;
     display: flex;
@@ -733,6 +737,12 @@ body {
 
     .editor-body {
         flex-direction: column;
+        flex: none;
+    }
+
+    .body-input {
+        height: 40vh;
+        min-height: 200px;
     }
 
     .preview-pane {
