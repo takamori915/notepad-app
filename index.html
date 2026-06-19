@@ -51,23 +51,23 @@
                         <div class="calendar-grid" id="calGrid"></div>
                         <button id="calClearBtn" class="cal-clear" hidden>絞り込み解除</button>
                     </div>
-                    <div class="format-filter-section">
-                        <div class="tag-filter-header">
-                            <span class="tag-filter-title">形式</span>
-                            <button id="formatClearBtn" class="tag-clear-btn" hidden>解除</button>
-                        </div>
-                        <div class="tag-filter-list">
-                            <span class="tag-filter-chip" data-format="text">テキスト</span>
-                            <span class="tag-filter-chip" data-format="todo">TODO</span>
-                            <span class="tag-filter-chip" data-format="markdown">MD</span>
-                        </div>
-                    </div>
                     <div class="tag-filter-section">
                         <div class="tag-filter-header">
                             <span class="tag-filter-title">タグ</span>
                             <button id="tagClearBtn" class="tag-clear-btn" hidden>解除</button>
                         </div>
                         <div id="tagFilterList" class="tag-filter-list"></div>
+                    </div>
+                    <div class="format-filter-section">
+                        <div class="tag-filter-header">
+                            <span class="tag-filter-title">形式</span>
+                            <button id="formatClearBtn" class="tag-clear-btn" hidden>解除</button>
+                        </div>
+                        <div class="tag-filter-list">
+                            <span class="tag-filter-chip" data-format="text">メモ</span>
+                            <span class="tag-filter-chip" data-format="todo">TODO</span>
+                            <span class="tag-filter-chip" data-format="markdown">Markdown</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -76,18 +76,18 @@
             <div class="mobile-editor-header">
                 <button id="openMenuBtn" class="mobile-menu-btn">☰ 一覧</button>
             </div>
-            <div class="editor-header">
-                <select id="formatSelect" class="format-select">
-                    <option value="text">テキスト</option>
-                    <option value="todo">TODOリスト</option>
-                    <option value="markdown">Markdown</option>
-                </select>
-            </div>
             <div class="tag-editor">
                 <div id="tagList" class="tag-list"></div>
                 <input id="tagInput" class="tag-input" type="text" placeholder="タグを追加" list="tagSuggestions" autocomplete="off">
                 <datalist id="tagSuggestions"></datalist>
                 <button id="tagAddBtn" class="add-btn">+</button>
+            </div>
+            <div class="editor-header">
+                <select id="formatSelect" class="format-select">
+                    <option value="text">メモ</option>
+                    <option value="todo">TODO</option>
+                    <option value="markdown">Markdown</option>
+                </select>
             </div>
             <div class="title-row">
                 <input id="titleInput" class="title-input" type="text" placeholder="タイトル">
