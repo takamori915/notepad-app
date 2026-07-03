@@ -510,7 +510,25 @@ class Notepad {
     }
 
     async fetchSiteInfo(url) {
-        // まず microlink.io API で取得を試みる（YouTube等に対応）
+        // YouTube: 公式 oEmbed API で取得（CORS不要・サムネイル付き）
+        if (/youtube\.com\/watch|youtu\.be\//.test(url)) {
+            try {
+                const ctrl = new AbortController();
+                const timer = setTimeout(() => ctrl.abort(), 8000);
+                const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`, { signal: ctrl.signal });
+                clearTimeout(timer);
+                if (res.ok) {
+                    const d = await res.json();
+                    const title = d.title || '';
+                    const description = d.author_name ? `投稿者: ${d.author_name}` : '';
+                    const image = d.thumbnail_url || '';
+                    const hash = await this.hashString(JSON.stringify(d));
+                    return { title, description, image, hash };
+                }
+            } catch (_) { /* フォールバックへ */ }
+        }
+
+        // microlink.io API で取得を試みる
         try {
             const ctrl = new AbortController();
             const timer = setTimeout(() => ctrl.abort(), 10000);
