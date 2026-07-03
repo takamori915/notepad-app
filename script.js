@@ -452,6 +452,9 @@ class Notepad {
         this.favoriteLastChecked.textContent = note.favoriteLastChecked
             ? `最終確認: ${this.formatDate(note.favoriteLastChecked)}`
             : '';
+        if (note.favoriteUrl) {
+            this.checkFavoriteUrl();
+        }
     }
 
     showFavoriteSiteInfo(note) {
