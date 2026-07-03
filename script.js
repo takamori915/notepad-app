@@ -29,6 +29,17 @@ class Notepad {
         this.todoPane = document.getElementById('todoPane');
         this.todoItems = document.getElementById('todoItems');
         this.todoInput = document.getElementById('todoInput');
+        this.favoritePane = document.getElementById('favoritePane');
+        this.favoriteUrlInput = document.getElementById('favoriteUrlInput');
+        this.favoriteCheckBtn = document.getElementById('favoriteCheckBtn');
+        this.favoriteStatus = document.getElementById('favoriteStatus');
+        this.favoriteSiteInfo = document.getElementById('favoriteSiteInfo');
+        this.favoriteSiteImage = document.getElementById('favoriteSiteImage');
+        this.favoriteSiteTitle = document.getElementById('favoriteSiteTitle');
+        this.favoriteSiteDesc = document.getElementById('favoriteSiteDesc');
+        this.favoriteSiteLink = document.getElementById('favoriteSiteLink');
+        this.favoriteNotifyCheck = document.getElementById('favoriteNotifyCheck');
+        this.favoriteLastChecked = document.getElementById('favoriteLastChecked');
 
         this.calYear = new Date().getFullYear();
         this.calMonth = new Date().getMonth();
@@ -129,6 +140,21 @@ class Notepad {
             this.renderList();
         });
 
+        this.favoriteCheckBtn.addEventListener('click', () => this.checkFavoriteUrl());
+        this.favoriteUrlInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') this.checkFavoriteUrl();
+        });
+        this.favoriteNotifyCheck.addEventListener('change', () => {
+            if (this.favoriteNotifyCheck.checked) {
+                Notification.requestPermission();
+            }
+            const note = this.notes.find(n => n.id === this.activeId);
+            if (note) {
+                note.favoriteNotify = this.favoriteNotifyCheck.checked;
+                this.persist();
+            }
+        });
+
         this.renderCalendar();
         this.render();
         if (this.notes.length > 0) {
@@ -136,6 +162,7 @@ class Notepad {
         } else {
             this.createNote();
         }
+        this.checkAllFavoriteUpdates();
     }
 
     switchTab(tabName) {
@@ -221,6 +248,7 @@ class Notepad {
         this.updateFormatView();
         this.renderTagEditor(note);
         this.renderTodoPane(note);
+        this.renderFavoritePane(note);
         this.render();
     }
 
@@ -411,6 +439,183 @@ class Notepad {
         });
     }
 
+    renderFavoritePane(note) {
+        this.favoriteUrlInput.value = note.favoriteUrl || '';
+        this.favoriteNotifyCheck.checked = !!note.favoriteNotify;
+        this.favoriteStatus.textContent = '';
+        this.favoriteStatus.className = 'favorite-status';
+        if (note.favoriteSiteTitle || note.favoriteSiteDesc) {
+            this.showFavoriteSiteInfo(note);
+        } else {
+            this.favoriteSiteInfo.hidden = true;
+        }
+        this.favoriteLastChecked.textContent = note.favoriteLastChecked
+            ? `最終確認: ${this.formatDate(note.favoriteLastChecked)}`
+            : '';
+        if (note.favoriteUrl) {
+            this.checkFavoriteUrl();
+        }
+    }
+
+    showFavoriteSiteInfo(note) {
+        this.favoriteSiteTitle.textContent = note.favoriteSiteTitle || '';
+        this.favoriteSiteDesc.textContent = note.favoriteSiteDesc || '';
+        if (note.favoriteSiteImage) {
+            this.favoriteSiteImage.src = note.favoriteSiteImage;
+            this.favoriteSiteImage.hidden = false;
+            this.favoriteSiteImage.onerror = () => { this.favoriteSiteImage.hidden = true; };
+        } else {
+            this.favoriteSiteImage.hidden = true;
+        }
+        const url = note.favoriteUrl || '';
+        this.favoriteSiteLink.textContent = url;
+        this.favoriteSiteLink.href = url;
+        this.favoriteSiteInfo.hidden = false;
+    }
+
+    async checkFavoriteUrl() {
+        let url = this.favoriteUrlInput.value.trim();
+        if (!url) return;
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        this.favoriteUrlInput.value = url;
+        const note = this.notes.find(n => n.id === this.activeId);
+        if (!note) return;
+
+        this.favoriteCheckBtn.disabled = true;
+        this.favoriteStatus.textContent = '取得中...';
+        this.favoriteStatus.className = 'favorite-status';
+
+        try {
+            const info = await this.fetchSiteInfo(url);
+            note.favoriteUrl = url;
+            note.favoriteSiteTitle = info.title;
+            note.favoriteSiteDesc = info.description;
+            note.favoriteSiteImage = info.image;
+            note.favoriteSiteHash = info.hash;
+            note.favoriteLastChecked = Date.now();
+            if (!note.title) {
+                note.title = info.title;
+                this.titleInput.value = info.title;
+            }
+            note.updatedAt = Date.now();
+            this.persist();
+            this.renderList();
+            this.showFavoriteSiteInfo(note);
+            this.favoriteLastChecked.textContent = `最終確認: ${this.formatDate(note.favoriteLastChecked)}`;
+            this.favoriteStatus.textContent = '取得完了';
+            this.favoriteStatus.className = 'favorite-status success';
+        } catch (e) {
+            this.favoriteStatus.textContent = '取得に失敗しました。URLを確認してください。';
+            this.favoriteStatus.className = 'favorite-status error';
+        } finally {
+            this.favoriteCheckBtn.disabled = false;
+        }
+    }
+
+    async fetchSiteInfo(url) {
+        // YouTube: 公式 oEmbed API で取得（CORS不要・サムネイル付き）
+        if (/youtube\.com\/watch|youtu\.be\//.test(url)) {
+            try {
+                const ctrl = new AbortController();
+                const timer = setTimeout(() => ctrl.abort(), 8000);
+                const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`, { signal: ctrl.signal });
+                clearTimeout(timer);
+                if (res.ok) {
+                    const d = await res.json();
+                    const title = d.title || '';
+                    const description = d.author_name ? `投稿者: ${d.author_name}` : '';
+                    const image = d.thumbnail_url || '';
+                    const hash = await this.hashString(JSON.stringify(d));
+                    return { title, description, image, hash };
+                }
+            } catch (_) { /* フォールバックへ */ }
+        }
+
+        // microlink.io API で取得を試みる
+        try {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 10000);
+            const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`, { signal: ctrl.signal });
+            clearTimeout(timer);
+            if (res.ok) {
+                const json = await res.json();
+                if (json.status === 'success') {
+                    const d = json.data;
+                    const title = d.title || '';
+                    const description = d.description || '';
+                    const image = d.image?.url || d.logo?.url || '';
+                    const hash = await this.hashString(JSON.stringify(d));
+                    return { title, description, image, hash };
+                }
+            }
+        } catch (_) { /* フォールバックへ */ }
+
+        // フォールバック: CORSプロキシ経由でHTMLを取得してOGP解析
+        const proxies = [
+            `https://corsproxy.io/?${encodeURIComponent(url)}`,
+            `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+        ];
+        let html = null;
+        for (const proxyUrl of proxies) {
+            try {
+                const ctrl = new AbortController();
+                const timer = setTimeout(() => ctrl.abort(), 8000);
+                const res = await fetch(proxyUrl, { signal: ctrl.signal });
+                clearTimeout(timer);
+                if (res.ok) { html = await res.text(); break; }
+            } catch (_) { /* 次のプロキシを試す */ }
+        }
+        if (!html) throw new Error('fetch failed');
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const getMeta = (...props) => {
+            for (const p of props) {
+                const el = doc.querySelector(`meta[property="${p}"], meta[name="${p}"]`);
+                if (el && el.getAttribute('content')) return el.getAttribute('content');
+            }
+            return '';
+        };
+
+        const base = new URL(url);
+        const title = getMeta('og:title', 'twitter:title') || doc.title || '';
+        const description = getMeta('og:description', 'twitter:description', 'description') || '';
+        let image = getMeta('og:image', 'twitter:image') || '';
+        if (image && !image.startsWith('http')) {
+            image = image.startsWith('/') ? `${base.origin}${image}` : `${base.origin}/${image}`;
+        }
+        if (!image) image = `${base.origin}/favicon.ico`;
+
+        const hash = await this.hashString(html.slice(0, 50000));
+        return { title, description, image, hash };
+    }
+
+    async hashString(str) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async checkAllFavoriteUpdates() {
+        const favNotes = this.notes.filter(n => n.format === 'favorite' && n.favoriteUrl && n.favoriteNotify && n.favoriteSiteHash);
+        if (favNotes.length === 0) return;
+        if (Notification.permission !== 'granted') return;
+
+        for (const note of favNotes) {
+            try {
+                const info = await this.fetchSiteInfo(note.favoriteUrl);
+                if (info.hash !== note.favoriteSiteHash) {
+                    note.favoriteSiteHash = info.hash;
+                    note.favoriteLastChecked = Date.now();
+                    this.persist();
+                    new Notification('Kakumee - サイト更新通知', {
+                        body: `「${note.title || note.favoriteUrl}」が更新されました`,
+                        icon: '/favicon.ico',
+                    });
+                }
+            } catch (_) { /* 取得失敗は無視 */ }
+        }
+    }
+
     renderTagEditor(note) {
         this.tagList.innerHTML = '';
         (note.tags || []).forEach(tag => {
@@ -565,3 +770,9 @@ class Notepad {
 document.addEventListener('DOMContentLoaded', () => {
     new Notepad();
 });
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/notepad-app/service-worker.js');
+    });
+}

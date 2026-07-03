@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kakumee</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <meta name="theme-color" content="#16171c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kakumee">
 </head>
 <body>
     <div class="app">
@@ -101,6 +107,28 @@
                         <input id="todoInput" class="todo-input" type="text" placeholder="タスクを追加">
                         <button id="todoAddBtn" class="add-btn">+</button>
                     </div>
+                </div>
+            </div>
+            <div id="favoritePane" class="favorite-pane">
+                <div class="favorite-url-row">
+                    <input id="favoriteUrlInput" class="favorite-url-input" type="url" placeholder="URLを入力">
+                    <button id="favoriteCheckBtn" class="favorite-check-btn">確認</button>
+                </div>
+                <div id="favoriteStatus" class="favorite-status"></div>
+                <div id="favoriteSiteInfo" class="favorite-site-info" hidden>
+                    <img id="favoriteSiteImage" class="favorite-site-image" src="" alt="" hidden>
+                    <div class="favorite-site-details">
+                        <div id="favoriteSiteTitle" class="favorite-site-title"></div>
+                        <div id="favoriteSiteDesc" class="favorite-site-desc"></div>
+                        <a id="favoriteSiteLink" class="favorite-site-link" target="_blank" rel="noopener noreferrer"></a>
+                    </div>
+                </div>
+                <div class="favorite-notify-row">
+                    <label class="favorite-notify-label">
+                        <input type="checkbox" id="favoriteNotifyCheck">
+                        サイトの更新を通知する
+                    </label>
+                    <span id="favoriteLastChecked" class="favorite-last-checked"></span>
                 </div>
             </div>
             <div class="editor-footer">
