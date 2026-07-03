@@ -510,10 +510,22 @@ class Notepad {
     }
 
     async fetchSiteInfo(url) {
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
-        if (!res.ok) throw new Error('fetch failed');
-        const html = await res.text();
+        const proxies = [
+            `https://corsproxy.io/?${encodeURIComponent(url)}`,
+            `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        ];
+        let html = null;
+        for (const proxyUrl of proxies) {
+            try {
+                const ctrl = new AbortController();
+                const timer = setTimeout(() => ctrl.abort(), 8000);
+                const res = await fetch(proxyUrl, { signal: ctrl.signal });
+                clearTimeout(timer);
+                if (res.ok) { html = await res.text(); break; }
+            } catch (_) { /* 次のプロキシを試す */ }
+        }
+        if (!html) throw new Error('fetch failed');
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
