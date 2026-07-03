@@ -67,7 +67,6 @@
                             <span class="tag-filter-chip" data-format="text">メモ</span>
                             <span class="tag-filter-chip" data-format="todo">TODO</span>
                             <span class="tag-filter-chip" data-format="markdown">Markdown</span>
-                            <span class="tag-filter-chip" data-format="favorite">お気に入り</span>
                         </div>
                     </div>
                 </div>
@@ -88,7 +87,6 @@
                     <option value="text">メモ</option>
                     <option value="todo">TODO</option>
                     <option value="markdown">Markdown</option>
-                    <option value="favorite">お気に入り</option>
                 </select>
             </div>
             <div class="title-row">
@@ -104,27 +102,27 @@
                         <button id="todoAddBtn" class="add-btn">+</button>
                     </div>
                 </div>
-                <div id="favoritePane" class="favorite-pane" hidden>
-                    <div class="favorite-url-row">
-                        <input id="favoriteUrlInput" class="favorite-url-input" type="url" placeholder="URLを入力">
-                        <button id="favoriteCheckBtn" class="favorite-check-btn">確認</button>
+            </div>
+            <div id="favoritePane" class="favorite-pane">
+                <div class="favorite-url-row">
+                    <input id="favoriteUrlInput" class="favorite-url-input" type="url" placeholder="URLを入力">
+                    <button id="favoriteCheckBtn" class="favorite-check-btn">確認</button>
+                </div>
+                <div id="favoriteStatus" class="favorite-status"></div>
+                <div id="favoriteSiteInfo" class="favorite-site-info" hidden>
+                    <img id="favoriteSiteImage" class="favorite-site-image" src="" alt="" hidden>
+                    <div class="favorite-site-details">
+                        <div id="favoriteSiteTitle" class="favorite-site-title"></div>
+                        <div id="favoriteSiteDesc" class="favorite-site-desc"></div>
+                        <a id="favoriteSiteLink" class="favorite-site-link" target="_blank" rel="noopener noreferrer"></a>
                     </div>
-                    <div id="favoriteStatus" class="favorite-status"></div>
-                    <div id="favoriteSiteInfo" class="favorite-site-info" hidden>
-                        <img id="favoriteSiteImage" class="favorite-site-image" src="" alt="" hidden>
-                        <div class="favorite-site-details">
-                            <div id="favoriteSiteTitle" class="favorite-site-title"></div>
-                            <div id="favoriteSiteDesc" class="favorite-site-desc"></div>
-                            <a id="favoriteSiteLink" class="favorite-site-link" target="_blank" rel="noopener noreferrer"></a>
-                        </div>
-                    </div>
-                    <div class="favorite-notify-row">
-                        <label class="favorite-notify-label">
-                            <input type="checkbox" id="favoriteNotifyCheck">
-                            サイトの更新を通知する
-                        </label>
-                        <span id="favoriteLastChecked" class="favorite-last-checked"></span>
-                    </div>
+                </div>
+                <div class="favorite-notify-row">
+                    <label class="favorite-notify-label">
+                        <input type="checkbox" id="favoriteNotifyCheck">
+                        サイトの更新を通知する
+                    </label>
+                    <span id="favoriteLastChecked" class="favorite-last-checked"></span>
                 </div>
             </div>
             <div class="editor-footer">

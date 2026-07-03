@@ -248,6 +248,7 @@ class Notepad {
         this.updateFormatView();
         this.renderTagEditor(note);
         this.renderTodoPane(note);
+        this.renderFavoritePane(note);
         this.render();
     }
 
@@ -267,19 +268,13 @@ class Notepad {
         const fmt = this.formatSelect.value;
         const isMd = fmt === 'markdown';
         const isTodo = fmt === 'todo';
-        const isFav = fmt === 'favorite';
-        this.bodyInput.hidden = isTodo || isFav;
+        this.bodyInput.hidden = isTodo;
         this.previewPane.hidden = !isMd;
         this.todoPane.hidden = !isTodo;
-        this.favoritePane.hidden = !isFav;
         if (isMd) this.updatePreview();
         if (isTodo) {
             const note = this.notes.find(n => n.id === this.activeId);
             if (note) this.renderTodoPane(note);
-        }
-        if (isFav) {
-            const note = this.notes.find(n => n.id === this.activeId);
-            if (note) this.renderFavoritePane(note);
         }
     }
 
@@ -304,7 +299,6 @@ class Notepad {
             this.updatedAt.textContent = '';
             this.previewPane.hidden = true;
             this.todoPane.hidden = true;
-            this.favoritePane.hidden = true;
             this.tagList.innerHTML = '';
             this.todoItems.innerHTML = '';
             this.render();
