@@ -280,6 +280,7 @@ class Notepad {
         this.bodyInput.hidden = isTodo;
         this.previewPane.hidden = !isMd;
         this.todoPane.hidden = !isTodo;
+        this.favoritePane.hidden = isTodo || isMd;
         if (isMd) this.updatePreview();
         if (isTodo) {
             const note = this.notes.find(n => n.id === this.activeId);
