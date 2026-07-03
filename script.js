@@ -510,10 +510,29 @@ class Notepad {
     }
 
     async fetchSiteInfo(url) {
+        // まず microlink.io API で取得を試みる（YouTube等に対応）
+        try {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 10000);
+            const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`, { signal: ctrl.signal });
+            clearTimeout(timer);
+            if (res.ok) {
+                const json = await res.json();
+                if (json.status === 'success') {
+                    const d = json.data;
+                    const title = d.title || '';
+                    const description = d.description || '';
+                    const image = d.image?.url || d.logo?.url || '';
+                    const hash = await this.hashString(JSON.stringify(d));
+                    return { title, description, image, hash };
+                }
+            }
+        } catch (_) { /* フォールバックへ */ }
+
+        // フォールバック: CORSプロキシ経由でHTMLを取得してOGP解析
         const proxies = [
             `https://corsproxy.io/?${encodeURIComponent(url)}`,
             `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
         ];
         let html = null;
         for (const proxyUrl of proxies) {
@@ -526,9 +545,9 @@ class Notepad {
             } catch (_) { /* 次のプロキシを試す */ }
         }
         if (!html) throw new Error('fetch failed');
+
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-
         const getMeta = (...props) => {
             for (const p of props) {
                 const el = doc.querySelector(`meta[property="${p}"], meta[name="${p}"]`);
@@ -544,9 +563,7 @@ class Notepad {
         if (image && !image.startsWith('http')) {
             image = image.startsWith('/') ? `${base.origin}${image}` : `${base.origin}/${image}`;
         }
-        if (!image) {
-            image = `${base.origin}/favicon.ico`;
-        }
+        if (!image) image = `${base.origin}/favicon.ico`;
 
         const hash = await this.hashString(html.slice(0, 50000));
         return { title, description, image, hash };
