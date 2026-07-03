@@ -770,3 +770,9 @@ class Notepad {
 document.addEventListener('DOMContentLoaded', () => {
     new Notepad();
 });
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/notepad-app/service-worker.js');
+    });
+}
