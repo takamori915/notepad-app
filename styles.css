@@ -16,7 +16,7 @@ body {
 }
 
 .sidebar {
-    width: 320px;
+    width: 100%;
     background: #1f2025;
     color: #eee;
     display: flex;
@@ -835,97 +835,79 @@ body {
     background: #d8392c;
 }
 
-/* Mobile: sidebar = full screen list, editor = right drawer */
-@media (max-width: 640px) {
-    .app {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: 100%;
-        overflow-y: auto;
-    }
-
-    .editor {
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 200;
-        transform: translateX(100%);
-        transition: transform 0.28s ease;
-        overflow-y: auto;
-    }
-
-    .editor.open {
-        transform: translateX(0);
-    }
-
-    .editor-content {
-        padding: 1rem;
-    }
-
-    .editor-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-
-    .title-input {
-        font-size: 1.3rem;
-        width: 100%;
-    }
-
-    .format-select {
-        width: 100%;
-    }
-
-    .editor-body {
-        flex-direction: column;
-        flex: none;
-    }
-
-    .body-input {
-        height: 40vh;
-        min-height: 200px;
-    }
-
-    .preview-pane {
-        border-left: none;
-        border-top: 1px solid #ddd;
-        padding-left: 0;
-        padding-top: 1rem;
-    }
-
-    .csv-controls {
-        flex-direction: column;
-    }
-
-    .tag-filter-chip {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.85rem;
-    }
-
-    .note-item {
-        padding: 0.9rem 1rem;
-    }
-
-    .cal-day {
-        padding: 5px 0;
-        font-size: 0.85rem;
-    }
+/* 全画面サイズ共通: 一覧メイン表示・エディターは右ドロワー */
+.app {
+    position: relative;
+    overflow: hidden;
 }
 
-/* Desktop: back button hidden, both panels always visible */
-@media (min-width: 641px) {
-    .back-btn {
-        display: none;
-    }
+.sidebar {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
 
-    .editor-content {
-        padding: 1.5rem 2rem;
-    }
+.editor {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 200;
+    transform: translateX(100%);
+    transition: transform 0.28s ease;
+    overflow-y: auto;
+}
+
+.editor.open {
+    transform: translateX(0);
+}
+
+.editor-content {
+    padding: 1.2rem 1.5rem;
+}
+
+.editor-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.title-input {
+    width: 100%;
+}
+
+.format-select {
+    width: 100%;
+}
+
+.editor-body {
+    flex-direction: column;
+    flex: none;
+}
+
+.body-input {
+    height: 50vh;
+    min-height: 200px;
+}
+
+.preview-pane {
+    border-left: none;
+    border-top: 1px solid #ddd;
+    padding-left: 0;
+    padding-top: 1rem;
+}
+
+.tag-filter-chip {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.note-item {
+    padding: 0.9rem 1rem;
+}
+
+.cal-day {
+    padding: 5px 0;
+    font-size: 0.85rem;
 }

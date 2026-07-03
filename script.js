@@ -157,12 +157,11 @@ class Notepad {
 
         this.renderCalendar();
         this.render();
-        const isMobile = window.innerWidth <= 640;
         if (this.notes.length > 0) {
-            this.selectNote(this.notes[0].id, !isMobile);
+            this.selectNote(this.notes[0].id, false);
         } else {
             this.createNote();
-            if (isMobile) this.closeEditor();
+            this.closeEditor();
         }
         this.checkAllFavoriteUpdates();
     }
