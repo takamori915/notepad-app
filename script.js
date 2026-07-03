@@ -460,6 +460,7 @@ class Notepad {
         if (note.favoriteSiteImage) {
             this.favoriteSiteImage.src = note.favoriteSiteImage;
             this.favoriteSiteImage.hidden = false;
+            this.favoriteSiteImage.onerror = () => { this.favoriteSiteImage.hidden = true; };
         } else {
             this.favoriteSiteImage.hidden = true;
         }
@@ -470,8 +471,10 @@ class Notepad {
     }
 
     async checkFavoriteUrl() {
-        const url = this.favoriteUrlInput.value.trim();
+        let url = this.favoriteUrlInput.value.trim();
         if (!url) return;
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        this.favoriteUrlInput.value = url;
         const note = this.notes.find(n => n.id === this.activeId);
         if (!note) return;
 
@@ -522,12 +525,15 @@ class Notepad {
             return '';
         };
 
+        const base = new URL(url);
         const title = getMeta('og:title', 'twitter:title') || doc.title || '';
         const description = getMeta('og:description', 'twitter:description', 'description') || '';
         let image = getMeta('og:image', 'twitter:image') || '';
         if (image && !image.startsWith('http')) {
-            const base = new URL(url);
             image = image.startsWith('/') ? `${base.origin}${image}` : `${base.origin}/${image}`;
+        }
+        if (!image) {
+            image = `${base.origin}/favicon.ico`;
         }
 
         const hash = await this.hashString(html.slice(0, 50000));
