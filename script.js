@@ -51,11 +51,14 @@ class Notepad {
 
         this.sidebar = document.querySelector('.sidebar');
         this.editorEl = document.querySelector('.editor');
-        this.filterTab = document.querySelector('.sidebar-tab[data-tab="filter"]');
-        document.querySelectorAll('.sidebar-tab').forEach(tab => {
-            tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
-        });
+        this.filterDrawer = document.getElementById('filterDrawer');
+        this.filterOverlay = document.getElementById('filterOverlay');
+        this.filterBtn = document.getElementById('filterBtn');
+
         document.getElementById('backBtn').addEventListener('click', () => this.closeEditor());
+        this.filterBtn.addEventListener('click', () => this.openFilterDrawer());
+        document.getElementById('filterCloseBtn').addEventListener('click', () => this.closeFilterDrawer());
+        this.filterOverlay.addEventListener('click', () => this.closeFilterDrawer());
 
         const storageInfoBtn = document.getElementById('storageInfoBtn');
         const storageInfoPanel = document.getElementById('storageInfoPanel');
@@ -166,9 +169,14 @@ class Notepad {
         this.checkAllFavoriteUpdates();
     }
 
-    switchTab(tabName) {
-        document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
-        document.querySelectorAll('.sidebar-tab-panel').forEach(p => p.hidden = p.dataset.panel !== tabName);
+    openFilterDrawer() {
+        this.filterDrawer.classList.add('open');
+        this.filterOverlay.classList.add('open');
+    }
+
+    closeFilterDrawer() {
+        this.filterDrawer.classList.remove('open');
+        this.filterOverlay.classList.remove('open');
     }
 
     addTag() {
@@ -394,7 +402,8 @@ class Notepad {
         const filterCount = [this.filterDate || this.filterMonth, this.filterTag, this.filterFormat].filter(Boolean).length;
         this.exportBtn.textContent = filterCount ? `↓ CSV出力 (${notes.length}件)` : '↓ CSV出力';
         const badge = filterCount ? `<span class="filter-badge">${filterCount}</span>` : '';
-        this.filterTab.innerHTML = `フィルター${badge}`;
+        this.filterBtn.innerHTML = `フィルター${badge}`;
+        this.filterBtn.classList.toggle('active', filterCount > 0);
 
         notes.forEach(note => {
             const li = document.createElement('li');
