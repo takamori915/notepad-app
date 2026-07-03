@@ -29,6 +29,17 @@ class Notepad {
         this.todoPane = document.getElementById('todoPane');
         this.todoItems = document.getElementById('todoItems');
         this.todoInput = document.getElementById('todoInput');
+        this.favoritePane = document.getElementById('favoritePane');
+        this.favoriteUrlInput = document.getElementById('favoriteUrlInput');
+        this.favoriteCheckBtn = document.getElementById('favoriteCheckBtn');
+        this.favoriteStatus = document.getElementById('favoriteStatus');
+        this.favoriteSiteInfo = document.getElementById('favoriteSiteInfo');
+        this.favoriteSiteImage = document.getElementById('favoriteSiteImage');
+        this.favoriteSiteTitle = document.getElementById('favoriteSiteTitle');
+        this.favoriteSiteDesc = document.getElementById('favoriteSiteDesc');
+        this.favoriteSiteLink = document.getElementById('favoriteSiteLink');
+        this.favoriteNotifyCheck = document.getElementById('favoriteNotifyCheck');
+        this.favoriteLastChecked = document.getElementById('favoriteLastChecked');
 
         this.calYear = new Date().getFullYear();
         this.calMonth = new Date().getMonth();
@@ -129,6 +140,21 @@ class Notepad {
             this.renderList();
         });
 
+        this.favoriteCheckBtn.addEventListener('click', () => this.checkFavoriteUrl());
+        this.favoriteUrlInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') this.checkFavoriteUrl();
+        });
+        this.favoriteNotifyCheck.addEventListener('change', () => {
+            if (this.favoriteNotifyCheck.checked) {
+                Notification.requestPermission();
+            }
+            const note = this.notes.find(n => n.id === this.activeId);
+            if (note) {
+                note.favoriteNotify = this.favoriteNotifyCheck.checked;
+                this.persist();
+            }
+        });
+
         this.renderCalendar();
         this.render();
         if (this.notes.length > 0) {
@@ -136,6 +162,7 @@ class Notepad {
         } else {
             this.createNote();
         }
+        this.checkAllFavoriteUpdates();
     }
 
     switchTab(tabName) {
@@ -240,13 +267,19 @@ class Notepad {
         const fmt = this.formatSelect.value;
         const isMd = fmt === 'markdown';
         const isTodo = fmt === 'todo';
-        this.bodyInput.hidden = isTodo;
+        const isFav = fmt === 'favorite';
+        this.bodyInput.hidden = isTodo || isFav;
         this.previewPane.hidden = !isMd;
         this.todoPane.hidden = !isTodo;
+        this.favoritePane.hidden = !isFav;
         if (isMd) this.updatePreview();
         if (isTodo) {
             const note = this.notes.find(n => n.id === this.activeId);
             if (note) this.renderTodoPane(note);
+        }
+        if (isFav) {
+            const note = this.notes.find(n => n.id === this.activeId);
+            if (note) this.renderFavoritePane(note);
         }
     }
 
@@ -271,6 +304,7 @@ class Notepad {
             this.updatedAt.textContent = '';
             this.previewPane.hidden = true;
             this.todoPane.hidden = true;
+            this.favoritePane.hidden = true;
             this.tagList.innerHTML = '';
             this.todoItems.innerHTML = '';
             this.render();
@@ -409,6 +443,127 @@ class Notepad {
             });
             this.todoItems.appendChild(li);
         });
+    }
+
+    renderFavoritePane(note) {
+        this.favoriteUrlInput.value = note.favoriteUrl || '';
+        this.favoriteNotifyCheck.checked = !!note.favoriteNotify;
+        this.favoriteStatus.textContent = '';
+        this.favoriteStatus.className = 'favorite-status';
+        if (note.favoriteSiteTitle || note.favoriteSiteDesc) {
+            this.showFavoriteSiteInfo(note);
+        } else {
+            this.favoriteSiteInfo.hidden = true;
+        }
+        this.favoriteLastChecked.textContent = note.favoriteLastChecked
+            ? `最終確認: ${this.formatDate(note.favoriteLastChecked)}`
+            : '';
+    }
+
+    showFavoriteSiteInfo(note) {
+        this.favoriteSiteTitle.textContent = note.favoriteSiteTitle || '';
+        this.favoriteSiteDesc.textContent = note.favoriteSiteDesc || '';
+        if (note.favoriteSiteImage) {
+            this.favoriteSiteImage.src = note.favoriteSiteImage;
+            this.favoriteSiteImage.hidden = false;
+        } else {
+            this.favoriteSiteImage.hidden = true;
+        }
+        const url = note.favoriteUrl || '';
+        this.favoriteSiteLink.textContent = url;
+        this.favoriteSiteLink.href = url;
+        this.favoriteSiteInfo.hidden = false;
+    }
+
+    async checkFavoriteUrl() {
+        const url = this.favoriteUrlInput.value.trim();
+        if (!url) return;
+        const note = this.notes.find(n => n.id === this.activeId);
+        if (!note) return;
+
+        this.favoriteCheckBtn.disabled = true;
+        this.favoriteStatus.textContent = '取得中...';
+        this.favoriteStatus.className = 'favorite-status';
+
+        try {
+            const info = await this.fetchSiteInfo(url);
+            note.favoriteUrl = url;
+            note.favoriteSiteTitle = info.title;
+            note.favoriteSiteDesc = info.description;
+            note.favoriteSiteImage = info.image;
+            note.favoriteSiteHash = info.hash;
+            note.favoriteLastChecked = Date.now();
+            if (!note.title) {
+                note.title = info.title;
+                this.titleInput.value = info.title;
+            }
+            note.updatedAt = Date.now();
+            this.persist();
+            this.renderList();
+            this.showFavoriteSiteInfo(note);
+            this.favoriteLastChecked.textContent = `最終確認: ${this.formatDate(note.favoriteLastChecked)}`;
+            this.favoriteStatus.textContent = '取得完了';
+            this.favoriteStatus.className = 'favorite-status success';
+        } catch (e) {
+            this.favoriteStatus.textContent = '取得に失敗しました。URLを確認してください。';
+            this.favoriteStatus.className = 'favorite-status error';
+        } finally {
+            this.favoriteCheckBtn.disabled = false;
+        }
+    }
+
+    async fetchSiteInfo(url) {
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
+        if (!res.ok) throw new Error('fetch failed');
+        const html = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const getMeta = (...props) => {
+            for (const p of props) {
+                const el = doc.querySelector(`meta[property="${p}"], meta[name="${p}"]`);
+                if (el && el.getAttribute('content')) return el.getAttribute('content');
+            }
+            return '';
+        };
+
+        const title = getMeta('og:title', 'twitter:title') || doc.title || '';
+        const description = getMeta('og:description', 'twitter:description', 'description') || '';
+        let image = getMeta('og:image', 'twitter:image') || '';
+        if (image && !image.startsWith('http')) {
+            const base = new URL(url);
+            image = image.startsWith('/') ? `${base.origin}${image}` : `${base.origin}/${image}`;
+        }
+
+        const hash = await this.hashString(html.slice(0, 50000));
+        return { title, description, image, hash };
+    }
+
+    async hashString(str) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async checkAllFavoriteUpdates() {
+        const favNotes = this.notes.filter(n => n.format === 'favorite' && n.favoriteUrl && n.favoriteNotify && n.favoriteSiteHash);
+        if (favNotes.length === 0) return;
+        if (Notification.permission !== 'granted') return;
+
+        for (const note of favNotes) {
+            try {
+                const info = await this.fetchSiteInfo(note.favoriteUrl);
+                if (info.hash !== note.favoriteSiteHash) {
+                    note.favoriteSiteHash = info.hash;
+                    note.favoriteLastChecked = Date.now();
+                    this.persist();
+                    new Notification('Kakumee - サイト更新通知', {
+                        body: `「${note.title || note.favoriteUrl}」が更新されました`,
+                        icon: '/favicon.ico',
+                    });
+                }
+            } catch (_) { /* 取得失敗は無視 */ }
+        }
     }
 
     renderTagEditor(note) {
