@@ -57,14 +57,14 @@
                 <button id="newNoteBtn" class="new-note-btn">+ 新規</button>
             </div>
             <div class="sidebar-actions">
-                <div class="csv-controls">
-                    <button id="exportBtn" class="csv-btn">↓ CSV出力</button>
-                    <label class="csv-btn import-label">
+                <div class="sidebar-action-row">
+                    <button id="exportBtn" class="action-btn">↓ CSV出力</button>
+                    <label class="action-btn import-label">
                         ↑ CSV取り込み
                         <input type="file" id="importInput" accept=".csv" hidden>
                     </label>
+                    <button id="storageInfoBtn" class="action-btn storage-info-btn">⚠</button>
                 </div>
-                <button id="storageInfoBtn" class="storage-info-btn">⚠ データの保存について</button>
                 <div id="storageInfoPanel" class="storage-info-panel" hidden>
                     <p class="storage-info-body">このアプリのデータは <strong>ブラウザのローカルストレージ</strong> に保存されています。そのため、以下の操作でデータが失われる可能性があります。</p>
                     <ul class="storage-info-list">

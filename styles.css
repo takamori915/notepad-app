@@ -55,8 +55,30 @@ body {
 }
 
 .sidebar-actions {
-    padding: 0 0 0.5rem;
+    padding: 0.5rem 1rem;
     border-bottom: 1px solid #2c2d33;
+}
+
+.sidebar-action-row {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.action-btn {
+    padding: 0.4rem 0.7rem;
+    background: #2a2b31;
+    color: #ccc;
+    border: 1px solid #3a3b42;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.action-btn:hover {
+    background: #3a3b42;
+    color: white;
 }
 
 /* フィルタードロワー（左から） */
@@ -153,28 +175,15 @@ body {
     line-height: 1.4;
 }
 
-.csv-controls {
-    display: flex;
-    gap: 0.5rem;
-    margin: 0 1rem 0.5rem;
-}
 
 .storage-info-btn {
-    display: block;
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: none;
     color: #f0c040;
-    font-size: 0.75rem;
-    cursor: pointer;
-    padding: 0 1rem 0.6rem;
-    opacity: 0.85;
+    border-color: #4a3800;
 }
 
 .storage-info-btn:hover {
-    opacity: 1;
-    text-decoration: underline;
+    color: #f0c040;
+    background: #2a2200;
 }
 
 .storage-info-panel {
@@ -213,23 +222,6 @@ body {
     line-height: 1.7;
     padding-left: 1.2rem;
     margin-bottom: 0.5rem;
-}
-
-.csv-btn {
-    flex: 1;
-    padding: 0.5rem;
-    background: #2a2b31;
-    color: #ccc;
-    border: 1px solid #3a3b42;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    text-align: center;
-}
-
-.csv-btn:hover {
-    background: #3a3b42;
-    color: white;
 }
 
 .import-label {
