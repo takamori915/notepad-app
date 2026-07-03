@@ -15,12 +15,11 @@
 <body>
     <div class="app">
         <aside class="sidebar">
-            <div class="mobile-header">
-                <span class="mobile-title">Kakumee</span>
-                <button id="closeMenuBtn" class="mobile-close-btn">✕</button>
+            <div class="sidebar-header">
+                <span class="sidebar-title">Kakumee</span>
+                <button id="newNoteBtn" class="new-note-btn">+ 新規</button>
             </div>
             <div class="sidebar-actions">
-                <button id="newNoteBtn" class="new-note-btn">+ 新規メモ</button>
                 <div class="csv-controls">
                     <button id="exportBtn" class="csv-btn">↓ CSV出力</button>
                     <label class="csv-btn import-label">
@@ -79,61 +78,65 @@
             </div>
         </aside>
         <main class="editor">
-            <div class="mobile-editor-header">
-                <button id="openMenuBtn" class="mobile-menu-btn">☰ 一覧</button>
+            <div class="editor-top-bar">
+                <button id="backBtn" class="back-btn">← 戻る</button>
+                <div class="editor-top-actions">
+                    <button id="deleteBtn" class="delete-btn-top">削除</button>
+                </div>
             </div>
-            <div class="tag-editor">
-                <div id="tagList" class="tag-list"></div>
-                <input id="tagInput" class="tag-input" type="text" placeholder="タグを追加" list="tagSuggestions" autocomplete="off">
-                <datalist id="tagSuggestions"></datalist>
-                <button id="tagAddBtn" class="add-btn">+</button>
-            </div>
-            <div class="editor-header">
-                <select id="formatSelect" class="format-select">
-                    <option value="text">メモ</option>
-                    <option value="todo">TODO</option>
-                    <option value="markdown">Markdown</option>
-                </select>
-            </div>
-            <div class="title-row">
-                <input id="titleInput" class="title-input" type="text" placeholder="タイトル">
-            </div>
-            <div id="editorBody" class="editor-body">
-                <textarea id="bodyInput" class="body-input" placeholder="メモを入力..."></textarea>
-                <div id="previewPane" class="preview-pane" hidden></div>
-                <div id="todoPane" class="todo-pane" hidden>
-                    <ul id="todoItems" class="todo-items"></ul>
-                    <div class="todo-add">
-                        <input id="todoInput" class="todo-input" type="text" placeholder="タスクを追加">
-                        <button id="todoAddBtn" class="add-btn">+</button>
+            <div class="editor-content">
+                <div class="tag-editor">
+                    <div id="tagList" class="tag-list"></div>
+                    <input id="tagInput" class="tag-input" type="text" placeholder="タグを追加" list="tagSuggestions" autocomplete="off">
+                    <datalist id="tagSuggestions"></datalist>
+                    <button id="tagAddBtn" class="add-btn">+</button>
+                </div>
+                <div class="editor-header">
+                    <select id="formatSelect" class="format-select">
+                        <option value="text">メモ</option>
+                        <option value="todo">TODO</option>
+                        <option value="markdown">Markdown</option>
+                    </select>
+                </div>
+                <div class="title-row">
+                    <input id="titleInput" class="title-input" type="text" placeholder="タイトル">
+                </div>
+                <div id="editorBody" class="editor-body">
+                    <textarea id="bodyInput" class="body-input" placeholder="メモを入力..."></textarea>
+                    <div id="previewPane" class="preview-pane" hidden></div>
+                    <div id="todoPane" class="todo-pane" hidden>
+                        <ul id="todoItems" class="todo-items"></ul>
+                        <div class="todo-add">
+                            <input id="todoInput" class="todo-input" type="text" placeholder="タスクを追加">
+                            <button id="todoAddBtn" class="add-btn">+</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div id="favoritePane" class="favorite-pane">
-                <div class="favorite-url-row">
-                    <input id="favoriteUrlInput" class="favorite-url-input" type="url" placeholder="URLを入力">
-                    <button id="favoriteCheckBtn" class="favorite-check-btn">確認</button>
-                </div>
-                <div id="favoriteStatus" class="favorite-status"></div>
-                <div id="favoriteSiteInfo" class="favorite-site-info" hidden>
-                    <img id="favoriteSiteImage" class="favorite-site-image" src="" alt="" hidden>
-                    <div class="favorite-site-details">
-                        <div id="favoriteSiteTitle" class="favorite-site-title"></div>
-                        <div id="favoriteSiteDesc" class="favorite-site-desc"></div>
-                        <a id="favoriteSiteLink" class="favorite-site-link" target="_blank" rel="noopener noreferrer"></a>
+                <div id="favoritePane" class="favorite-pane">
+                    <div class="favorite-url-row">
+                        <input id="favoriteUrlInput" class="favorite-url-input" type="url" placeholder="URLを入力">
+                        <button id="favoriteCheckBtn" class="favorite-check-btn">確認</button>
+                    </div>
+                    <div id="favoriteStatus" class="favorite-status"></div>
+                    <div id="favoriteSiteInfo" class="favorite-site-info" hidden>
+                        <img id="favoriteSiteImage" class="favorite-site-image" src="" alt="" hidden>
+                        <div class="favorite-site-details">
+                            <div id="favoriteSiteTitle" class="favorite-site-title"></div>
+                            <div id="favoriteSiteDesc" class="favorite-site-desc"></div>
+                            <a id="favoriteSiteLink" class="favorite-site-link" target="_blank" rel="noopener noreferrer"></a>
+                        </div>
+                    </div>
+                    <div class="favorite-notify-row">
+                        <label class="favorite-notify-label">
+                            <input type="checkbox" id="favoriteNotifyCheck">
+                            サイトの更新を通知する
+                        </label>
+                        <span id="favoriteLastChecked" class="favorite-last-checked"></span>
                     </div>
                 </div>
-                <div class="favorite-notify-row">
-                    <label class="favorite-notify-label">
-                        <input type="checkbox" id="favoriteNotifyCheck">
-                        サイトの更新を通知する
-                    </label>
-                    <span id="favoriteLastChecked" class="favorite-last-checked"></span>
+                <div class="editor-footer">
+                    <span id="updatedAt" class="updated-at"></span>
                 </div>
-            </div>
-            <div class="editor-footer">
-                <span id="updatedAt" class="updated-at"></span>
-                <button id="deleteBtn" class="delete-btn">削除</button>
             </div>
         </main>
     </div>

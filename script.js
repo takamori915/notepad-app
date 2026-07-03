@@ -12,7 +12,7 @@ class Notepad {
         this.formatSelect = document.getElementById('formatSelect');
         this.updatedAt = document.getElementById('updatedAt');
         this.newNoteBtn = document.getElementById('newNoteBtn');
-        this.deleteBtn = document.getElementById('deleteBtn');
+        this.deleteBtn = document.getElementById('deleteBtn') || document.getElementById('deleteBtn-top');
         this.exportBtn = document.getElementById('exportBtn');
         this.importInput = document.getElementById('importInput');
         this.calGrid = document.getElementById('calGrid');
@@ -50,12 +50,12 @@ class Notepad {
         this.exportCount = 0;
 
         this.sidebar = document.querySelector('.sidebar');
+        this.editorEl = document.querySelector('.editor');
         this.filterTab = document.querySelector('.sidebar-tab[data-tab="filter"]');
         document.querySelectorAll('.sidebar-tab').forEach(tab => {
             tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
         });
-        document.getElementById('openMenuBtn').addEventListener('click', () => this.openSidebar());
-        document.getElementById('closeMenuBtn').addEventListener('click', () => this.closeSidebar());
+        document.getElementById('backBtn').addEventListener('click', () => this.closeEditor());
 
         const storageInfoBtn = document.getElementById('storageInfoBtn');
         const storageInfoPanel = document.getElementById('storageInfoPanel');
@@ -66,7 +66,7 @@ class Notepad {
         });
 
         this.newNoteBtn.addEventListener('click', () => this.createNote());
-        this.deleteBtn.addEventListener('click', () => this.deleteActiveNote());
+        document.getElementById('deleteBtn').addEventListener('click', () => this.deleteActiveNote());
         this.exportBtn.addEventListener('click', () => this.exportCsv());
         this.importInput.addEventListener('change', (e) => this.importCsv(e));
         this.titleInput.addEventListener('input', () => this.saveActiveNote());
@@ -157,10 +157,12 @@ class Notepad {
 
         this.renderCalendar();
         this.render();
+        const isMobile = window.innerWidth <= 640;
         if (this.notes.length > 0) {
-            this.selectNote(this.notes[0].id);
+            this.selectNote(this.notes[0].id, !isMobile);
         } else {
             this.createNote();
+            if (isMobile) this.closeEditor();
         }
         this.checkAllFavoriteUpdates();
     }
@@ -198,12 +200,12 @@ class Notepad {
         this.todoInput.value = '';
     }
 
-    openSidebar() {
-        this.sidebar.classList.add('open');
+    openEditor() {
+        this.editorEl.classList.add('open');
     }
 
-    closeSidebar() {
-        this.sidebar.classList.remove('open');
+    closeEditor() {
+        this.editorEl.classList.remove('open');
     }
 
     loadNotes() {
@@ -236,9 +238,9 @@ class Notepad {
         this.titleInput.focus();
     }
 
-    selectNote(id) {
+    selectNote(id, openDrawer = true) {
         this.activeId = id;
-        this.closeSidebar();
+        if (openDrawer) this.openEditor();
         const note = this.notes.find(n => n.id === id);
         if (!note) return;
         this.titleInput.value = note.title;
@@ -289,8 +291,9 @@ class Notepad {
         if (!this.activeId) return;
         this.notes = this.notes.filter(n => n.id !== this.activeId);
         this.persist();
+        this.closeEditor();
         if (this.notes.length > 0) {
-            this.selectNote(this.notes[0].id);
+            this.selectNote(this.notes[0].id, false);
         } else {
             this.activeId = null;
             this.titleInput.value = '';
