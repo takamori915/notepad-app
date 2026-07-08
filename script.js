@@ -12,7 +12,7 @@ class Notepad {
         this.formatSelect = document.getElementById('formatSelect');
         this.updatedAt = document.getElementById('updatedAt');
         this.newNoteBtn = document.getElementById('newNoteBtn');
-        this.deleteBtn = document.getElementById('deleteBtn');
+        this.deleteBtn = document.getElementById('deleteBtn') || document.getElementById('deleteBtn-top');
         this.exportBtn = document.getElementById('exportBtn');
         this.importInput = document.getElementById('importInput');
         this.calGrid = document.getElementById('calGrid');
@@ -50,12 +50,15 @@ class Notepad {
         this.exportCount = 0;
 
         this.sidebar = document.querySelector('.sidebar');
-        this.filterTab = document.querySelector('.sidebar-tab[data-tab="filter"]');
-        document.querySelectorAll('.sidebar-tab').forEach(tab => {
-            tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
-        });
-        document.getElementById('openMenuBtn').addEventListener('click', () => this.openSidebar());
-        document.getElementById('closeMenuBtn').addEventListener('click', () => this.closeSidebar());
+        this.editorEl = document.querySelector('.editor');
+        this.filterDrawer = document.getElementById('filterDrawer');
+        this.filterOverlay = document.getElementById('filterOverlay');
+        this.filterBtn = document.getElementById('filterBtn');
+
+        document.getElementById('backBtn').addEventListener('click', () => this.closeEditor());
+        this.filterBtn.addEventListener('click', () => this.openFilterDrawer());
+        document.getElementById('filterCloseBtn').addEventListener('click', () => this.closeFilterDrawer());
+        this.filterOverlay.addEventListener('click', () => this.closeFilterDrawer());
 
         const storageInfoBtn = document.getElementById('storageInfoBtn');
         const storageInfoPanel = document.getElementById('storageInfoPanel');
@@ -66,7 +69,7 @@ class Notepad {
         });
 
         this.newNoteBtn.addEventListener('click', () => this.createNote());
-        this.deleteBtn.addEventListener('click', () => this.deleteActiveNote());
+        document.getElementById('deleteBtn').addEventListener('click', () => this.deleteActiveNote());
         this.exportBtn.addEventListener('click', () => this.exportCsv());
         this.importInput.addEventListener('change', (e) => this.importCsv(e));
         this.titleInput.addEventListener('input', () => this.saveActiveNote());
@@ -158,16 +161,22 @@ class Notepad {
         this.renderCalendar();
         this.render();
         if (this.notes.length > 0) {
-            this.selectNote(this.notes[0].id);
+            this.selectNote(this.notes[0].id, false);
         } else {
             this.createNote();
+            this.closeEditor();
         }
         this.checkAllFavoriteUpdates();
     }
 
-    switchTab(tabName) {
-        document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
-        document.querySelectorAll('.sidebar-tab-panel').forEach(p => p.hidden = p.dataset.panel !== tabName);
+    openFilterDrawer() {
+        this.filterDrawer.classList.add('open');
+        this.filterOverlay.classList.add('open');
+    }
+
+    closeFilterDrawer() {
+        this.filterDrawer.classList.remove('open');
+        this.filterOverlay.classList.remove('open');
     }
 
     addTag() {
@@ -198,12 +207,12 @@ class Notepad {
         this.todoInput.value = '';
     }
 
-    openSidebar() {
-        this.sidebar.classList.add('open');
+    openEditor() {
+        this.editorEl.classList.add('open');
     }
 
-    closeSidebar() {
-        this.sidebar.classList.remove('open');
+    closeEditor() {
+        this.editorEl.classList.remove('open');
     }
 
     loadNotes() {
@@ -236,9 +245,9 @@ class Notepad {
         this.titleInput.focus();
     }
 
-    selectNote(id) {
+    selectNote(id, openDrawer = true) {
         this.activeId = id;
-        this.closeSidebar();
+        if (openDrawer) this.openEditor();
         const note = this.notes.find(n => n.id === id);
         if (!note) return;
         this.titleInput.value = note.title;
@@ -271,6 +280,7 @@ class Notepad {
         this.bodyInput.hidden = isTodo;
         this.previewPane.hidden = !isMd;
         this.todoPane.hidden = !isTodo;
+        this.favoritePane.hidden = isTodo || isMd;
         if (isMd) this.updatePreview();
         if (isTodo) {
             const note = this.notes.find(n => n.id === this.activeId);
@@ -289,8 +299,9 @@ class Notepad {
         if (!this.activeId) return;
         this.notes = this.notes.filter(n => n.id !== this.activeId);
         this.persist();
+        this.closeEditor();
         if (this.notes.length > 0) {
-            this.selectNote(this.notes[0].id);
+            this.selectNote(this.notes[0].id, false);
         } else {
             this.activeId = null;
             this.titleInput.value = '';
@@ -392,7 +403,8 @@ class Notepad {
         const filterCount = [this.filterDate || this.filterMonth, this.filterTag, this.filterFormat].filter(Boolean).length;
         this.exportBtn.textContent = filterCount ? `↓ CSV出力 (${notes.length}件)` : '↓ CSV出力';
         const badge = filterCount ? `<span class="filter-badge">${filterCount}</span>` : '';
-        this.filterTab.innerHTML = `フィルター${badge}`;
+        this.filterBtn.innerHTML = `フィルター${badge}`;
+        this.filterBtn.classList.toggle('active', filterCount > 0);
 
         notes.forEach(note => {
             const li = document.createElement('li');

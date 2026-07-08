@@ -16,7 +16,7 @@ body {
 }
 
 .sidebar {
-    width: 260px;
+    width: 100%;
     background: #1f2025;
     color: #eee;
     display: flex;
@@ -25,16 +25,29 @@ body {
     overflow: hidden;
 }
 
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1rem 0.6rem;
+    border-bottom: 1px solid #2c2d33;
+}
+
+.sidebar-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #eee;
+    letter-spacing: 0.03em;
+}
+
 .new-note-btn {
-    margin: 1rem 1rem 0.5rem;
-    padding: 0.7rem;
+    padding: 0.4rem 0.9rem;
     background: #4a6cf7;
     color: white;
     border: none;
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     cursor: pointer;
-    width: calc(100% - 2rem);
 }
 
 .new-note-btn:hover {
@@ -42,50 +55,113 @@ body {
 }
 
 .sidebar-actions {
-    padding: 0 0 0.5rem;
+    padding: 0.5rem 1rem;
     border-bottom: 1px solid #2c2d33;
 }
 
-.sidebar-tabs {
+.sidebar-action-row {
     display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.action-btn {
+    padding: 0.4rem 0.7rem;
+    background: #2a2b31;
+    color: #ccc;
+    border: 1px solid #3a3b42;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.action-btn:hover {
+    background: #3a3b42;
+    color: white;
+}
+
+/* フィルタードロワー（左から） */
+.filter-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+}
+
+.filter-overlay.open {
+    display: block;
+}
+
+.filter-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    max-width: 85%;
+    height: 100%;
+    background: #1f2025;
+    z-index: 160;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.filter-drawer.open {
+    transform: translateX(0);
+}
+
+.filter-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1rem 0.6rem;
     border-bottom: 1px solid #2c2d33;
     flex-shrink: 0;
 }
 
-.sidebar-tab {
-    flex: 1;
-    padding: 0.6rem;
+.filter-drawer-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #eee;
+}
+
+.filter-close-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+.filter-close-btn:hover { color: #eee; background: #2a2b31; }
+
+.filter-open-btn {
     background: none;
     border: none;
     color: #888;
     font-size: 0.85rem;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: color 0.15s;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
 }
 
-.sidebar-tab:hover { color: #ccc; }
+.filter-open-btn:hover { color: #ccc; background: #2a2b31; }
 
-.sidebar-tab.active {
-    color: #fff;
-    border-bottom-color: #4a6cf7;
-}
-
-.sidebar-tab-panel {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-}
-
-.sidebar-tab-panel[hidden] {
-    display: none;
+.filter-open-btn.active {
+    color: #4a6cf7;
 }
 
 .filter-panel {
     padding: 0.5rem 0;
     overflow-y: auto;
+    flex: 1;
 }
 
 .filter-badge {
@@ -100,23 +176,17 @@ body {
     line-height: 1.4;
 }
 
-.csv-controls {
-    display: flex;
-    gap: 0.5rem;
-    margin: 0 1rem 0.5rem;
-}
 
 .storage-info-btn {
-    display: block;
-    width: 100%;
-    text-align: left;
     background: none;
     border: none;
     color: #f0c040;
     font-size: 0.75rem;
     cursor: pointer;
-    padding: 0 1rem 0.6rem;
+    padding: 0;
     opacity: 0.85;
+    flex-shrink: 1;
+    text-align: left;
 }
 
 .storage-info-btn:hover {
@@ -162,21 +232,10 @@ body {
     margin-bottom: 0.5rem;
 }
 
-.csv-btn {
-    flex: 1;
-    padding: 0.5rem;
-    background: #2a2b31;
-    color: #ccc;
-    border: 1px solid #3a3b42;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    text-align: center;
-}
-
-.csv-btn:hover {
-    background: #3a3b42;
-    color: white;
+.csv-controls {
+    display: flex;
+    gap: 0.4rem;
+    flex-shrink: 0;
 }
 
 .import-label {
@@ -606,8 +665,54 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 2rem;
     background: #1f2025;
+    overflow: hidden;
+}
+
+.editor-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid #2c2d33;
+    flex-shrink: 0;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #4a6cf7;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+}
+
+.back-btn:hover { background: #2a2b31; }
+
+.editor-top-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.delete-btn-top {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 0.35rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.88rem;
+}
+
+.delete-btn-top:hover { background: #d8392c; }
+
+.editor-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.2rem 1.5rem;
+    overflow-y: auto;
 }
 
 .editor-header {
@@ -776,144 +881,79 @@ body {
     background: #d8392c;
 }
 
-/* Mobile header elements - hidden on desktop */
-.mobile-header {
-    display: none;
+/* 全画面サイズ共通: 一覧メイン表示・エディターは右ドロワー */
+.app {
+    position: relative;
+    overflow: hidden;
 }
 
-.mobile-editor-header {
-    display: none;
+.sidebar {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
 }
 
-.mobile-close-btn,
-.mobile-menu-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.4rem 0.6rem;
-    border-radius: 6px;
+.editor {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 200;
+    transform: translateX(100%);
+    transition: transform 0.28s ease;
+    overflow-y: auto;
 }
 
-.mobile-close-btn {
-    color: #aaa;
-    font-size: 1.1rem;
+.editor.open {
+    transform: translateX(0);
 }
 
-.mobile-close-btn:hover { color: white; }
-
-.mobile-menu-btn {
-    color: #ccc;
-    border: 1px solid #3a3b42;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+.editor-content {
+    padding: 1.2rem 1.5rem;
 }
 
-.mobile-menu-btn:hover { background: #2a2b31; }
+.editor-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
 
-/* Responsive layout for mobile */
-@media (max-width: 640px) {
-    .app {
-        position: relative;
-        overflow: hidden;
-    }
+.title-input {
+    width: 100%;
+}
 
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 100;
-        transform: translateX(-100%);
-        transition: transform 0.25s ease;
-        overflow-y: auto;
-    }
+.format-select {
+    width: 100%;
+}
 
-    .sidebar.open {
-        transform: translateX(0);
-    }
+.editor-body {
+    flex-direction: column;
+    flex: none;
+}
 
-    .mobile-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.8rem 1rem;
-        border-bottom: 1px solid #2c2d33;
-        margin-bottom: 0.3rem;
-    }
+.body-input {
+    height: 50vh;
+    min-height: 200px;
+}
 
-    .mobile-title {
-        font-size: 1rem;
-        font-weight: bold;
-        color: #eee;
-    }
+.preview-pane {
+    border-left: none;
+    border-top: 1px solid #ddd;
+    padding-left: 0;
+    padding-top: 1rem;
+}
 
-    .mobile-editor-header {
-        display: block;
-    }
+.tag-filter-chip {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+}
 
-    .editor {
-        padding: 1rem;
-        width: 100%;
-    }
+.note-item {
+    padding: 0.9rem 1rem;
+}
 
-    .editor-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-
-    .title-input {
-        font-size: 1.3rem;
-        width: 100%;
-    }
-
-    .format-select {
-        width: 100%;
-    }
-
-    .editor-body {
-        flex-direction: column;
-        flex: none;
-    }
-
-    .body-input {
-        height: 40vh;
-        min-height: 200px;
-    }
-
-    .preview-pane {
-        border-left: none;
-        border-top: 1px solid #ddd;
-        padding-left: 0;
-        padding-top: 1rem;
-    }
-
-    .sidebar-actions .new-note-btn {
-        padding: 0.9rem;
-        font-size: 1rem;
-    }
-
-    .csv-controls {
-        flex-direction: column;
-    }
-
-    .tag-filter-chip {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.85rem;
-    }
-
-    .note-item {
-        padding: 0.9rem 1rem;
-    }
-
-    .cal-day {
-        padding: 5px 0;
-        font-size: 0.85rem;
-    }
-
-    .delete-btn {
-        padding: 0.7rem 1.4rem;
-        font-size: 1rem;
-    }
+.cal-day {
+    padding: 5px 0;
+    font-size: 0.85rem;
 }
