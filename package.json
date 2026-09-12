@@ -1,0 +1,13 @@
+{
+  "name": "notepad-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser-based notepad PWA",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "eslint": "^9.15.0"
+  }
+}
