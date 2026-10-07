@@ -1,9 +1,12 @@
-const CACHE_NAME = 'kakumee-v1';
+const CACHE_NAME = 'kakumee-v2';
 const ASSETS = [
     '/notepad-app/',
     '/notepad-app/index.html',
     '/notepad-app/styles.css',
     '/notepad-app/script.js',
+    '/notepad-app/generator.html',
+    '/notepad-app/generator.css',
+    '/notepad-app/generator.js',
     '/notepad-app/manifest.json',
     '/notepad-app/icons/icon-192.png',
     '/notepad-app/icons/icon-512.png',

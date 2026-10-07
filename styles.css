@@ -41,6 +41,22 @@ body {
     background: #3a5ce0;
 }
 
+.ai-site-btn {
+    display: block;
+    margin: 0 1rem 0.5rem;
+    padding: 0.55rem;
+    background: linear-gradient(135deg, #4a6cf7, #8a5cf7);
+    color: white;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    text-align: center;
+    text-decoration: none;
+}
+
+.ai-site-btn:hover {
+    opacity: 0.9;
+}
+
 .sidebar-actions {
     padding: 0 0 0.5rem;
     border-bottom: 1px solid #2c2d33;
