@@ -1,6 +1,6 @@
-const NOTES_KEY = 'notepad-notes';
-const SITES_KEY = 'kakumee-sites';
-const API_KEY_KEY = 'kakumee-anthropic-key';
+const NOTES_KEY = 'msb-notes';
+const SITES_KEY = 'msb-sites';
+const API_KEY_KEY = 'msb-anthropic-key';
 const SDK_URL = 'https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.131.0/+esm';
 const MODEL = 'claude-opus-5-5';
 const MAX_HISTORY = 20;
@@ -41,10 +41,12 @@ const SYSTEM_PROMPT = `あなたは優秀なWebデザイナー兼フロントエ
 - TODOリストの未完了タスクなど、サイトの目的に合わないメモは無理に使わず省いて構いません。`;
 
 class SiteGenerator {
-    constructor() {
-        this.notes = this.load(NOTES_KEY, []);
+    constructor(store) {
+        this.store = store;
+        this.notes = store.notes;
         this.sites = this.load(SITES_KEY, []);
         this.selected = new Set(this.notes.map(n => n.id));
+        this.knownIds = new Set(this.selected);
         this.current = null; // { id, type, title, html, createdAt, noteIds }
         this.busy = false;
 
@@ -140,7 +142,20 @@ class SiteGenerator {
             .filter(n => !tag || (n.tags || []).includes(tag));
     }
 
+    // メモ画面で追加・削除されたメモを反映する（新しいメモは選択状態で追加）
+    refreshNotes() {
+        this.notes = this.store.notes;
+        const ids = new Set(this.notes.map(n => n.id));
+        this.notes.forEach(n => { if (!this.knownIds.has(n.id)) this.selected.add(n.id); });
+        [...this.selected].forEach(id => { if (!ids.has(id)) this.selected.delete(id); });
+        this.knownIds = ids;
+        this.renderTagFilter();
+        this.renderNotePicker();
+    }
+
     renderTagFilter() {
+        const current = this.tagFilter.value;
+        while (this.tagFilter.options.length > 1) this.tagFilter.remove(1);
         const tags = [...new Set(this.notes.flatMap(n => n.tags || []))].sort();
         tags.forEach(t => {
             const opt = document.createElement('option');
@@ -148,13 +163,14 @@ class SiteGenerator {
             opt.textContent = t;
             this.tagFilter.appendChild(opt);
         });
+        this.tagFilter.value = tags.includes(current) ? current : '';
     }
 
     renderNotePicker() {
         this.notePicker.innerHTML = '';
         const notes = this.visibleNotes();
         if (this.notes.length === 0) {
-            this.notePicker.innerHTML = '<li class="picker-empty">メモがありません。<a href="index.html">メモ画面</a>で書いてから戻ってきてください。</li>';
+            this.notePicker.innerHTML = '<li class="picker-empty">メモがありません。「📝 メモ」タブでメモを書いてから戻ってきてください。</li>';
         }
         notes.forEach(note => {
             const li = document.createElement('li');
@@ -197,21 +213,8 @@ class SiteGenerator {
             lines.push(`タイトル: ${n.title || '(無題)'}`);
             lines.push(`更新日: ${new Date(n.updatedAt).toLocaleDateString('ja-JP')}`);
             if (n.tags && n.tags.length) lines.push(`タグ: ${n.tags.join(', ')}`);
-            const fmt = n.format || 'text';
-            lines.push(`形式: ${fmt === 'markdown' ? 'Markdown' : fmt === 'todo' ? 'TODOリスト' : 'テキスト'}`);
-            if (n.favoriteUrl) {
-                lines.push(`関連URL: ${n.favoriteUrl}`);
-                if (n.favoriteSiteTitle) lines.push(`URLのページタイトル: ${n.favoriteSiteTitle}`);
-                if (n.favoriteSiteDesc) lines.push(`URLの説明: ${n.favoriteSiteDesc}`);
-                if (n.favoriteSiteImage) lines.push(`URLの画像: ${n.favoriteSiteImage}`);
-            }
-            if (fmt === 'todo' && n.todos && n.todos.length) {
-                lines.push('内容:');
-                n.todos.forEach(t => lines.push(`- [${t.done ? 'x' : ' '}] ${t.text}`));
-            } else {
-                lines.push('内容:');
-                lines.push(n.body || '');
-            }
+            lines.push('内容:');
+            lines.push(n.body || '');
             lines.push('</memo>');
             return lines.join('\n');
         }).join('\n\n');
@@ -538,4 +541,293 @@ class SiteGenerator {
 
 class UserError extends Error {}
 
-new SiteGenerator();
+
+// =====================================================================
+// メモ
+// =====================================================================
+
+class MemoStore {
+    constructor() {
+        try {
+            const raw = localStorage.getItem(NOTES_KEY);
+            this.notes = raw ? JSON.parse(raw) : [];
+        } catch (_) {
+            this.notes = [];
+        }
+    }
+
+    save() {
+        try {
+            localStorage.setItem(NOTES_KEY, JSON.stringify(this.notes));
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    create() {
+        const note = { id: Date.now().toString(), title: '', body: '', tags: [], updatedAt: Date.now() };
+        this.notes.unshift(note);
+        this.save();
+        return note;
+    }
+
+    remove(id) {
+        const idx = this.notes.findIndex(n => n.id === id);
+        if (idx !== -1) this.notes.splice(idx, 1);
+        this.save();
+    }
+
+    get(id) {
+        return this.notes.find(n => n.id === id);
+    }
+}
+
+class MemoEditor {
+    constructor(store) {
+        this.store = store;
+        this.activeId = null;
+        this.$ = id => document.getElementById(id);
+        this.list = this.$('memoList');
+        this.title = this.$('memoTitle');
+        this.body = this.$('memoBody');
+        this.tagInput = this.$('memoTagInput');
+        this.search = this.$('memoSearch');
+
+        this.$('newMemoBtn').addEventListener('click', () => {
+            const note = this.store.create();
+            this.search.value = '';
+            this.select(note.id);
+            this.title.focus();
+        });
+        this.$('deleteMemoBtn').addEventListener('click', () => this.deleteActive());
+        this.title.addEventListener('input', () => this.saveActive());
+        this.body.addEventListener('input', () => this.saveActive());
+        this.tagInput.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' || e.isComposing) return;
+            e.preventDefault();
+            this.addTag();
+        });
+        this.search.addEventListener('input', () => this.renderList());
+        this.$('exportBtn').addEventListener('click', () => this.exportCsv());
+        this.$('importInput').addEventListener('change', (e) => this.importCsv(e));
+
+        const first = this.sortedNotes()[0];
+        if (first) this.select(first.id);
+        else this.renderAll();
+    }
+
+    sortedNotes() {
+        return this.store.notes.slice().sort((a, b) => b.updatedAt - a.updatedAt);
+    }
+
+    select(id) {
+        this.activeId = id;
+        const note = this.store.get(id);
+        if (note) {
+            this.title.value = note.title;
+            this.body.value = note.body;
+        }
+        this.renderAll();
+    }
+
+    renderAll() {
+        const note = this.store.get(this.activeId);
+        this.$('memoEmpty').hidden = !!note;
+        this.$('memoForm').hidden = !note;
+        if (note) {
+            this.renderTags(note);
+            this.$('memoUpdated').textContent = `更新: ${new Date(note.updatedAt).toLocaleString('ja-JP')}`;
+        }
+        this.renderList();
+    }
+
+    saveActive() {
+        const note = this.store.get(this.activeId);
+        if (!note) return;
+        note.title = this.title.value;
+        note.body = this.body.value;
+        note.updatedAt = Date.now();
+        this.store.save();
+        this.$('memoUpdated').textContent = `更新: ${new Date(note.updatedAt).toLocaleString('ja-JP')}`;
+        this.renderList();
+    }
+
+    deleteActive() {
+        const note = this.store.get(this.activeId);
+        if (!note) return;
+        if ((note.title || note.body) && !confirm(`「${note.title || '無題のメモ'}」を削除しますか？`)) return;
+        this.store.remove(note.id);
+        const next = this.sortedNotes()[0];
+        this.activeId = null;
+        if (next) this.select(next.id);
+        else this.renderAll();
+    }
+
+    addTag() {
+        const tag = this.tagInput.value.trim();
+        const note = this.store.get(this.activeId);
+        if (!tag || !note) return;
+        if (!note.tags.includes(tag)) {
+            note.tags.push(tag);
+            note.updatedAt = Date.now();
+            this.store.save();
+            this.renderAll();
+        }
+        this.tagInput.value = '';
+    }
+
+    renderTags(note) {
+        const wrap = this.$('memoTagList');
+        wrap.innerHTML = '';
+        note.tags.forEach(tag => {
+            const chip = document.createElement('span');
+            chip.className = 'tag-chip';
+            chip.textContent = tag;
+            const x = document.createElement('button');
+            x.className = 'tag-chip-remove';
+            x.title = '削除';
+            x.textContent = '×';
+            x.addEventListener('click', () => {
+                note.tags = note.tags.filter(t => t !== tag);
+                note.updatedAt = Date.now();
+                this.store.save();
+                this.renderAll();
+            });
+            chip.appendChild(x);
+            wrap.appendChild(chip);
+        });
+    }
+
+    renderList() {
+        const q = this.search.value.trim().toLowerCase();
+        const notes = this.sortedNotes().filter(n => !q
+            || n.title.toLowerCase().includes(q)
+            || n.body.toLowerCase().includes(q)
+            || n.tags.some(t => t.toLowerCase().includes(q)));
+        this.list.innerHTML = '';
+        notes.forEach(note => {
+            const li = document.createElement('li');
+            li.className = 'memo-item' + (note.id === this.activeId ? ' active' : '');
+            const t = document.createElement('div');
+            t.className = 'memo-item-title';
+            t.textContent = note.title || '無題のメモ';
+            const p = document.createElement('div');
+            p.className = 'memo-item-preview';
+            p.textContent = note.body.slice(0, 40);
+            li.append(t, p);
+            li.addEventListener('click', () => this.select(note.id));
+            this.list.appendChild(li);
+        });
+        if (notes.length === 0 && this.store.notes.length > 0) {
+            this.list.innerHTML = '<li class="memo-list-empty">見つかりません</li>';
+        }
+    }
+
+    // ---------- CSV ----------
+
+    csvEscape(v) {
+        return '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    }
+
+    exportCsv() {
+        const header = ['id', 'title', 'body', 'tags', 'updatedAt'];
+        const rows = this.sortedNotes().map(n => [
+            n.id, n.title, n.body, n.tags.join(' '), new Date(n.updatedAt).toISOString(),
+        ].map(v => this.csvEscape(v)).join(','));
+        const csv = '﻿' + [header.join(','), ...rows].join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `memos_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // 本アプリのCSVと Kakumee のCSV（id,title,body,format,updatedAt）の両方を読み込める
+    importCsv(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const rows = parseCsv(String(reader.result).replace(/^﻿/, ''));
+                if (rows.length < 2) throw new Error('empty');
+                const header = rows[0];
+                const col = name => header.indexOf(name);
+                const existing = new Set(this.store.notes.map(n => n.id));
+                let added = 0;
+                rows.slice(1).forEach((cols, i) => {
+                    if (cols.length === 1 && cols[0] === '') return;
+                    const id = cols[col('id')] || `${Date.now()}-${i}`;
+                    if (existing.has(id)) return;
+                    const updated = cols[col('updatedAt')] ? new Date(cols[col('updatedAt')]).getTime() : Date.now();
+                    this.store.notes.push({
+                        id,
+                        title: cols[col('title')] || '',
+                        body: cols[col('body')] || '',
+                        tags: col('tags') !== -1 && cols[col('tags')] ? cols[col('tags')].split(/\s+/).filter(Boolean) : [],
+                        updatedAt: Number.isNaN(updated) ? Date.now() : updated,
+                    });
+                    existing.add(id);
+                    added++;
+                });
+                this.store.save();
+                const first = this.sortedNotes()[0];
+                if (first && !this.activeId) this.select(first.id);
+                else this.renderAll();
+                alert(added ? `${added}件のメモを取り込みました。` : '新しいメモはありませんでした（重複はスキップしました）。');
+            } catch (_) {
+                alert('CSVの読み込みに失敗しました。');
+            }
+            e.target.value = '';
+        };
+        reader.readAsText(file, 'UTF-8');
+    }
+}
+
+function parseCsv(text) {
+    const rows = [];
+    let row = [];
+    let field = '';
+    let inQuote = false;
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (inQuote) {
+            if (ch === '"' && text[i + 1] === '"') { field += '"'; i++; }
+            else if (ch === '"') inQuote = false;
+            else field += ch;
+        } else if (ch === '"') {
+            inQuote = true;
+        } else if (ch === ',') {
+            row.push(field); field = '';
+        } else if (ch === '\r' || ch === '\n') {
+            if (ch === '\r' && text[i + 1] === '\n') i++;
+            row.push(field); field = '';
+            rows.push(row); row = [];
+        } else {
+            field += ch;
+        }
+    }
+    if (field || row.length) { row.push(field); rows.push(row); }
+    return rows;
+}
+
+// =====================================================================
+// 起動
+// =====================================================================
+
+const store = new MemoStore();
+new MemoEditor(store);
+const generator = new SiteGenerator(store);
+
+document.querySelectorAll('.app-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        const page = tab.dataset.page;
+        document.querySelectorAll('.app-tab').forEach(t => t.classList.toggle('active', t === tab));
+        document.getElementById('memoPage').hidden = page !== 'memo';
+        document.getElementById('buildPage').hidden = page !== 'build';
+        if (page === 'build') generator.refreshNotes();
+    });
+});

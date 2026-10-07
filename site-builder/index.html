@@ -3,19 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kakumee - AIサイト生成</title>
-    <link rel="stylesheet" href="generator.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <title>Memo Site Builder</title>
+    <link rel="stylesheet" href="style.css">
     <meta name="theme-color" content="#16171c">
 </head>
 <body>
-    <header class="gen-header">
-        <a href="index.html" class="back-link">← メモに戻る</a>
-        <h1 class="gen-title">✨ AIサイト生成</h1>
+    <header class="app-header">
+        <h1 class="app-title">✨ Memo Site Builder</h1>
+        <nav class="app-tabs">
+            <button class="app-tab active" data-page="memo">📝 メモ</button>
+            <button class="app-tab" data-page="build">🪄 サイト生成</button>
+        </nav>
     </header>
 
-    <div class="gen-layout">
+    <!-- ================= メモ ================= -->
+    <div id="memoPage" class="page memo-layout">
+        <aside class="memo-sidebar">
+            <button id="newMemoBtn" class="new-btn">+ 新規メモ</button>
+            <div class="memo-search">
+                <input id="memoSearch" class="gen-input" type="search" placeholder="検索">
+            </div>
+            <ul id="memoList" class="memo-list"></ul>
+            <div class="memo-io">
+                <button id="exportBtn" class="small-btn">↓ CSV出力</button>
+                <label class="small-btn file-label">
+                    ↑ CSV取り込み
+                    <input type="file" id="importInput" accept=".csv" hidden>
+                </label>
+            </div>
+            <p class="io-hint">Kakumee で出力したCSVも取り込めます。</p>
+        </aside>
+        <main class="memo-editor">
+            <div id="memoEmpty" class="empty-state">
+                <div class="empty-icon">📝</div>
+                <p>「+ 新規メモ」からメモを書きましょう。<br>書いたメモをもとに、AIがサイトを作ります。</p>
+            </div>
+            <div id="memoForm" class="memo-form" hidden>
+                <input id="memoTitle" class="memo-title" type="text" placeholder="タイトル">
+                <div class="memo-tags">
+                    <div id="memoTagList" class="tag-list"></div>
+                    <input id="memoTagInput" class="tag-input" type="text" placeholder="タグを追加（Enter）" autocomplete="off">
+                </div>
+                <textarea id="memoBody" class="memo-body" placeholder="メモを入力...（Markdown も使えます）"></textarea>
+                <div class="memo-footer">
+                    <span id="memoUpdated" class="memo-updated"></span>
+                    <button id="deleteMemoBtn" class="delete-btn">削除</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= サイト生成 ================= -->
+    <div id="buildPage" class="page gen-layout" hidden>
         <section class="gen-panel">
             <div class="gen-step">
                 <h2 class="step-title"><span class="step-num">1</span>作るものを選ぶ</h2>
@@ -141,6 +180,6 @@
         </section>
     </div>
 
-    <script type="module" src="generator.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
